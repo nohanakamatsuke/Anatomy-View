@@ -14,7 +14,9 @@ let atlas,
   isolated = false,
   enabled = ["skeletal"],
   installPrompt,
-  toastTimer;
+  toastTimer,
+  acupunctureMenu,
+  modeTransition = false;
 const loading = new Map();
 const loadingPhases = new Map();
 let favorites = [];
@@ -98,13 +100,15 @@ function renderState() {
   updateLoader();
   if (atlas) makeQuickList();
 }
-async function enableLayers(ids) {
+async function enableLayers(ids, quiet = false) {
   enabled = ids;
   renderState();
   try {
     await viewer.setEnabled(ids);
+    return true;
   } catch (e) {
-    showError(e);
+    if (!quiet) showError(e);
+    return false;
   }
 }
 function closeMenu() {
@@ -349,6 +353,15 @@ $("#credits").onclick = () =>
     '<span class="section-kicker">OPEN ANATOMY</span><h2>モデルの出典</h2><p>BodyParts3D 4.0<br>© The Database Center for Life Science<br>CC BY 4.0</p><p>Human Atlas の軽量化済みメッシュを元に、骨格・筋肉・臓器の3レイヤーへ再構成しています。元の形状と識別子を保持し、日本語の案内と一部の一般的な解説を追加しました。</p><p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0 ライセンス</a><br><a href="https://github.com/ashemag/human-atlas" target="_blank" rel="noopener">Human Atlas / モデル提供元</a><br><a href="./ATTRIBUTION.md" target="_blank">詳細な出典・加工内容</a></p><p class="info-note">成人男性の参照モデルです。すべての組織や個体差を網羅しません。日本語訳は主要部位のみで、細部は原典の英語名を表示します。診断や手術計画には使えません。</p>',
   );
 document.addEventListener("keydown", (e) => {
+  if (
+    (e.metaKey || e.ctrlKey) &&
+    e.key.toLowerCase() === "k" &&
+    acupunctureMenu?.active
+  ) {
+    e.preventDefault();
+    acupunctureMenu.focusSearch();
+    return;
+  }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
     e.preventDefault();
     $("#sidebar").classList.add("open");
@@ -396,8 +409,17 @@ $("#install").onclick = async () => {
           Math.max(70, Math.min(y - 15, $("#stage").clientHeight - 150)) + "px";
       },
     });
-    await enableLayers(["skeletal"]);
+    const initialAcupuncture =
+      new URLSearchParams(location.search).get("mode") === "acupuncture";
+    await enableLayers([initialAcupuncture ? "integumentary" : "skeletal"]);
     makeQuickList();
+    document
+      .querySelectorAll(".mode-switch button")
+      .forEach((b) => (b.disabled = false));
+    if (initialAcupuncture) {
+      enabled = ["skeletal"];
+      await changeMode("acupuncture");
+    }
   } catch (e) {
     showError(e);
   }
@@ -573,3 +595,67 @@ $("#end-quiz").onclick = () => {
   resetSelection();
   viewer?.reset();
 };
+
+async function changeMode(mode) {
+  if (!viewer || modeTransition) return;
+  modeTransition = true;
+  document
+    .querySelectorAll(".mode-switch button")
+    .forEach((b) => (b.disabled = true));
+  try {
+    if (mode === "acupuncture") {
+      if (!acupunctureMenu) {
+        const { AcupunctureMenu } = await import(
+          assetURL("acupuncture-ui.js").href
+        );
+        acupunctureMenu = await AcupunctureMenu.create(viewer, {
+          getLayers: () => [...enabled],
+          getSelection: () => selection,
+          restoreSelection: async (entry, wasIsolated) => {
+            await select(entry, false);
+            isolated = wasIsolated;
+            viewer.setIsolation(isolated);
+            $("#isolate").setAttribute("aria-pressed", String(isolated));
+            $("#isolate").textContent = isolated
+              ? "◇ 全体に戻す"
+              : "◇ 単独表示";
+          },
+          setLayers: (layers, quiet) => enableLayers(layers, quiet),
+          resetAnatomy: resetSelection,
+          closeMenu,
+          openMenu: () => {
+            $("#sidebar").classList.add("open");
+            $("#menu").setAttribute("aria-expanded", "true");
+          },
+          toast,
+          showInfo,
+        });
+      }
+      await acupunctureMenu.enter();
+      const query = new URLSearchParams(location.search),
+        code = query.get("point");
+      if (code) {
+        const point = acupunctureMenu.point(code.toUpperCase());
+        if (point)
+          acupunctureMenu.select(
+            point,
+            query.get("side") === "right" ? "right" : "left",
+          );
+      }
+    } else if (acupunctureMenu?.active) await acupunctureMenu.leave();
+  } catch (error) {
+    toast(error.message || "経穴マップを開けませんでした");
+  } finally {
+    modeTransition = false;
+    const active = !!acupunctureMenu?.active;
+    $("#mode-anatomy").classList.toggle("active", !active);
+    $("#mode-acupuncture").classList.toggle("active", active);
+    $("#mode-anatomy").setAttribute("aria-pressed", String(!active));
+    $("#mode-acupuncture").setAttribute("aria-pressed", String(active));
+    document
+      .querySelectorAll(".mode-switch button")
+      .forEach((b) => (b.disabled = false));
+  }
+}
+$("#mode-anatomy").onclick = () => changeMode("anatomy");
+$("#mode-acupuncture").onclick = () => changeMode("acupuncture");

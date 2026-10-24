@@ -1633,4 +1633,667 @@ aside > * {
   max-height: none;
   overflow: visible;
 }
-header .header-actions { margin-left: auto; }
+header .header-actions {
+  margin-left: auto;
+}
+.mode-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #9fc6b322;
+  border-radius: 8px;
+  background: #ffffff03;
+}
+.mode-switch button {
+  padding: 9px 17px;
+  font-size: 11px;
+  color: #78968d;
+  border-radius: 5px;
+}
+.mode-switch button.active {
+  background: #94c2aa20;
+  color: #d4e6d9;
+}
+.mode-switch button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+#anatomy-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+#anatomy-panel > * {
+  flex-shrink: 0;
+}
+#acupuncture-panel {
+  width: 100%;
+  padding-bottom: 10px;
+}
+.acu-heading h2 {
+  font-size: 20px;
+  font-weight: 450;
+  letter-spacing: 1px;
+  margin: 13px 0 10px;
+}
+.acu-heading p {
+  font-size: 9px;
+  color: #8aa69c;
+  margin: 0 0 24px;
+}
+.acu-search-label,
+.acu-filter-label {
+  display: block;
+  font-size: 10px;
+  color: #8aa69c;
+  margin-bottom: 16px;
+}
+.acu-search-label input,
+.acu-filter-label select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  background: #0d1c22;
+  border: 1px solid #ffffff1a;
+  border-radius: 6px;
+  padding: 11px;
+  color: #c5dacf;
+  outline: none;
+  font-size: 11px;
+}
+.acu-search-label input:focus,
+.acu-filter-label select:focus {
+  border-color: #a8cdb477;
+}
+.acu-search-label input::placeholder {
+  font-size: 10px;
+  color: #68857b;
+}
+.acu-side-options {
+  display: flex;
+  background: #ffffff03;
+  border: 1px solid #ffffff0c;
+  padding: 3px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.acu-side-options button {
+  flex: 1;
+  border-radius: 4px;
+  padding: 7px;
+  font-size: 10px;
+  color: #78998d;
+}
+.acu-side-options button.active {
+  background: #99c4aa20;
+  color: #c0d9c9;
+}
+.acu-favorites-only {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #87a395;
+  margin: 12px 0 18px;
+}
+.acu-favorites-only input {
+  accent-color: #a9d1b9;
+}
+#acu-result-count {
+  font-size: 8px;
+  color: #6f8c7c;
+  margin-bottom: 9px;
+}
+#acu-list {
+  display: grid;
+  gap: 3px;
+}
+.acu-point-row {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  padding: 12px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+}
+.acu-point-row:hover {
+  background: #ffffff05;
+}
+.acu-point-row.selected {
+  background: #91ba9e12;
+  border-color: #94be9f30;
+}
+.acu-point-row strong {
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0.4px;
+  display: block;
+  color: #c9dcd0;
+}
+.acu-point-row small {
+  font-size: 8px;
+  color: #698578;
+  display: block;
+  margin-top: 5px;
+}
+.acu-point-row > b {
+  font-size: 12px;
+  color: #d9c78d;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.acu-point-row i {
+  font-size: 8px;
+  color: #d9c78d;
+  font-style: normal;
+}
+.acu-study-button,
+#acu-more {
+  width: 100%;
+  font-size: 10px;
+  padding: 12px 6px;
+  margin-top: 16px;
+  border: 1px solid #9bc4aa2b;
+  border-radius: 6px;
+  color: #a7cab3;
+  background: #9bc4aa08;
+}
+.acu-footnote {
+  margin-top: 27px;
+  padding-top: 19px;
+  border-top: 1px solid #ffffff10;
+}
+.acu-footnote strong {
+  font-size: 10px;
+  font-weight: 450;
+  color: #b8c4a1;
+}
+.acu-footnote p {
+  font-size: 9px;
+  line-height: 1.9;
+  color: #799789;
+}
+.acu-footnote button {
+  font-size: 9px;
+  color: #9dc0ad;
+  padding: 10px 0;
+}
+.acu-footnote small {
+  font-size: 8px;
+  color: #57776a;
+  display: block;
+  line-height: 1.9;
+}
+.acupuncture-mode #inspector,
+.acupuncture-mode #selection-label,
+.acupuncture-mode .hero,
+.acupuncture-mode #tools-toggle,
+.acupuncture-mode #advanced-tools,
+.acupuncture-mode #quiz-card,
+.acupuncture-mode #mobile-layers,
+.acupuncture-mode .opacity-control,
+.acupuncture-mode .bottom-divider {
+  display: none !important;
+}
+#acu-detail,
+#acu-overview {
+  position: absolute;
+  bottom: 124px;
+  right: 30px;
+  width: 275px;
+  border: 1px solid #a7c9ad2b;
+  background: linear-gradient(135deg, #21362def, #172c2cf5);
+  border-radius: 12px;
+  padding: 21px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 15px 40px #0002;
+}
+.acu-detail-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8px;
+  color: #8cab97;
+  letter-spacing: 0.5px;
+}
+.acu-detail-top button {
+  font-size: 20px;
+  color: #8eae9a;
+  padding: 0;
+}
+.acu-name-code {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+.acu-name-code h3 {
+  font-size: 28px;
+  letter-spacing: 2px;
+  font-weight: 450;
+  margin: 0;
+  color: #e1eadc;
+}
+.acu-name-code > b {
+  font-size: 23px;
+  color: #ead5a0;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+#acu-point-reading {
+  font-size: 10px;
+  color: #9ab49e;
+  letter-spacing: 1px;
+  margin: 9px 0 18px;
+}
+#acu-point-meridian {
+  font-size: 9px;
+  color: #93af9c;
+  line-height: 1.8;
+  margin: 0;
+}
+#acu-point-aliases {
+  font-size: 8px;
+  color: #7a9b87;
+  line-height: 1.7;
+  margin: 7px 0;
+}
+#acu-detail-sides {
+  display: flex;
+  gap: 5px;
+  margin: 12px 0;
+}
+#acu-detail-sides button {
+  font-size: 9px;
+  border: 1px solid #abcbb51a;
+  color: #84aa92;
+  padding: 6px 13px;
+  border-radius: 4px;
+}
+#acu-detail-sides button.active {
+  color: #d5e4d2;
+  background: #9cc4a51a;
+  border-color: #9cc4a544;
+}
+#acu-point-location {
+  font-size: 9px;
+  color: #8da58e;
+  line-height: 1.9;
+  border-top: 1px solid #ffffff0b;
+  padding-top: 13px;
+  margin: 11px 0 14px;
+}
+.acu-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.acu-card-actions button {
+  background: #a7c5ab0d;
+  color: #b0c8aa;
+  border-radius: 5px;
+  padding: 10px 5px;
+  font-size: 9px;
+  border: 1px solid #a7c5ab12;
+}
+#acu-favorite[aria-pressed="true"] {
+  color: #e2cd95;
+  background: #dac68e14;
+}
+.acu-point-pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #ffffff0c;
+  padding-top: 13px;
+  margin-top: 16px;
+}
+.acu-point-pagination button {
+  font-size: 9px;
+  color: #92b09b;
+}
+.acu-point-pagination button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+#acu-tag {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+  background: #122b25dc;
+  border: 1px solid #cdd6ac45;
+  padding: 10px 13px;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  max-width: 200px;
+}
+#acu-tag strong {
+  font-size: 12px;
+  font-weight: 500;
+  color: #f0e2ba;
+  display: block;
+  letter-spacing: 0.4px;
+}
+#acu-tag small {
+  font-size: 8px;
+  color: #9bb69d;
+  display: block;
+  margin-top: 5px;
+}
+#acu-overview > span {
+  font-size: 11px;
+  color: #b9ceb7;
+  letter-spacing: 0.5px;
+}
+#acu-overview > div {
+  display: grid;
+  gap: 7px;
+  margin: 17px 0;
+}
+#acu-overview button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  background: #b8d0ae0b;
+  border: 1px solid #b8d0ae18;
+  padding: 11px 12px;
+  font-size: 12px;
+}
+#acu-overview button > b {
+  font-weight: 500;
+  color: #dec98d;
+  font-size: 13px;
+}
+#acu-overview > small {
+  font-size: 8px;
+  color: #829d84;
+  line-height: 1.9;
+  display: block;
+}
+#acu-mobile-toolbar {
+  display: none;
+}
+.acu-study-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #b7cbb2;
+  font-size: 12px;
+  margin: 12px 0 20px;
+}
+.acu-study-top button {
+  font-size: 10px;
+  color: #82a68b;
+}
+#acu-study-score {
+  font-size: 10px;
+  color: #8db093;
+  margin: 22px 0 12px;
+}
+#acu-question {
+  font-size: 18px;
+  line-height: 1.8;
+  letter-spacing: 0.5px;
+  font-weight: 450;
+  color: #e5e4c8;
+}
+#acu-answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+#acu-answers button {
+  padding: 15px 8px;
+  border: 1px solid #b1c9a42b;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #cdd3af;
+  background: #b1c9a408;
+}
+#acu-answers button.correct {
+  background: #86b99b33;
+  border-color: #86b99b99;
+}
+#acu-answers button.incorrect {
+  background: #c18a8a22;
+  border-color: #c18a8a77;
+}
+#acu-study-feedback {
+  color: #e4d7a2;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+  line-height: 1.8;
+}
+#acu-next-question {
+  width: 100%;
+  padding: 13px;
+  background: #a7c5a51a;
+  color: #bfd4b3;
+  font-size: 11px;
+  border-radius: 6px;
+}
+.acu-study-mode .acu-browser,
+.acu-study-mode #acu-detail,
+.acu-study-mode #acu-overview,
+.acu-study-mode #acu-tag {
+  display: none !important;
+}
+.acupuncture-mode .model-badge {
+  border-color: #dbcb9733;
+  color: #c2c0a0;
+}
+.acupuncture-mode .stage-breadcrumb b {
+  color: #d2d1ac;
+}
+@media (max-width: 1100px) {
+  #acu-detail,
+  #acu-overview {
+    right: 20px;
+    width: 240px;
+    padding: 18px;
+  }
+  .acu-name-code h3 {
+    font-size: 25px;
+  }
+  .acu-name-code > b {
+    font-size: 21px;
+  }
+}
+@media (max-width: 900px) {
+  .mode-switch {
+    gap: 2px;
+    padding: 3px;
+  }
+  .mode-switch button {
+    padding: 9px 12px;
+    font-size: 10px;
+  }
+  #acu-mobile-toolbar {
+    display: none;
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 21px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #b4cb9c2a;
+    background: #142b27ed;
+    backdrop-filter: blur(16px);
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .acupuncture-mode #acu-mobile-toolbar {
+    display: flex;
+  }
+  #acu-mobile-toolbar label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 9px;
+    color: #89a98c;
+  }
+  #acu-mobile-toolbar select {
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #d0d7b7;
+    font-size: 11px;
+    max-width: 210px;
+    padding: 6px 2px;
+  }
+  #acu-mobile-toolbar > span {
+    font-size: 8px;
+    color: #baa97f;
+    white-space: nowrap;
+  }
+  #acu-detail,
+  #acu-overview {
+    right: 15px;
+    bottom: 126px;
+    width: 223px;
+    padding: 16px;
+  }
+  .acu-name-code {
+    margin-top: 12px;
+    gap: 10px;
+  }
+  .acu-name-code h3 {
+    font-size: 23px;
+    letter-spacing: 1px;
+  }
+  .acu-name-code > b {
+    font-size: 21px;
+  }
+  #acu-point-reading {
+    font-size: 9px;
+    margin: 7px 0 11px;
+  }
+  #acu-point-location {
+    font-size: 8px;
+    line-height: 1.7;
+    padding-top: 9px;
+    margin: 9px 0 10px;
+  }
+  .acu-card-actions button {
+    padding: 8px 4px;
+    font-size: 8px;
+  }
+  .acu-point-pagination {
+    margin-top: 11px;
+    padding-top: 10px;
+  }
+  #acu-overview > span {
+    font-size: 10px;
+  }
+  #acu-overview > div {
+    margin: 12px 0;
+  }
+  #acu-overview button {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+  #acu-overview > small {
+    font-size: 7px;
+  }
+  #acu-tag {
+    padding: 8px 10px;
+    max-width: 170px;
+  }
+  #acu-tag strong {
+    font-size: 11px;
+  }
+  #acu-tag small {
+    font-size: 7px;
+  }
+}
+@media (max-width: 390px) {
+  .mode-switch button {
+    padding: 8px 10px;
+    font-size: 9px;
+  }
+  .header-actions {
+    gap: 8px;
+  }
+  #acu-detail,
+  #acu-overview {
+    width: 205px;
+    right: 12px;
+    padding: 13px;
+  }
+  .acu-name-code h3 {
+    font-size: 22px;
+  }
+  .acu-name-code > b {
+    font-size: 19px;
+  }
+  #acu-point-meridian {
+    font-size: 8px;
+  }
+  #acu-mobile-toolbar {
+    left: 12px;
+    right: 12px;
+    padding: 9px 12px;
+  }
+  #acu-mobile-toolbar select {
+    max-width: 180px;
+  }
+}
+@media (max-height: 600px) and (max-width: 900px) {
+  #acu-detail {
+    max-height: 200px;
+    overflow: auto;
+    bottom: 112px;
+  }
+  #acu-point-location {
+    display: none;
+  }
+  #acu-overview {
+    bottom: 112px;
+    width: 200px;
+  }
+  .acu-heading p {
+    margin-bottom: 18px;
+  }
+}
+@media (max-width: 600px) {
+  #acu-overview {
+    top: 66px;
+    left: 14px;
+    right: auto;
+    bottom: auto;
+    width: 115px;
+    padding: 10px;
+  }
+  #acu-overview > span {
+    font-size: 8px;
+    line-height: 1.7;
+    display: block;
+  }
+  #acu-overview > div {
+    gap: 6px;
+    margin: 10px 0;
+  }
+  #acu-overview button {
+    padding: 8px 5px;
+    font-size: 9px;
+    gap: 5px;
+  }
+  #acu-overview button > b {
+    font-size: 10px;
+  }
+  #acu-overview > small {
+    font-size: 6px;
+    line-height: 1.8;
+  }
+  #acu-detail {
+    max-height: 48dvh;
+    overflow: auto;
+    scrollbar-width: thin;
+  }
+}

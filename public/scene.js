@@ -19,6 +19,8 @@ export class AnatomyScene {
     this.layers = new Map();
     this.modelLoader = new ModelLoader();
     this.readyCallbacks = new Map();
+    this.frameListeners = new Set();
+    this.pickInterceptor = null;
     this.loading = new Map();
     this.enabled = new Set(["skeletal"]);
     this.selected = new Set();
@@ -219,6 +221,7 @@ export class AnatomyScene {
         p.z > -1 && p.z < 1,
       );
     }
+    for (const listener of this.frameListeners) listener();
     if (moving || controlsMoving || this.controls.autoRotate) this.invalidate();
   }
   resize() {
@@ -519,6 +522,7 @@ export class AnatomyScene {
     );
   }
   pick(e) {
+    if (this.pickInterceptor?.(e)) return;
     const rect = this.host.getBoundingClientRect();
     this.pointer.set(
       ((e.clientX - rect.left) / rect.width) * 2 - 1,

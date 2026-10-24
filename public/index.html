@@ -22,9 +22,12 @@
   </head>
   <body>
     <header>
-      <div class="header-center">
-        <span class="online-dot"></span> INTERACTIVE ANATOMY
-        <span class="edition"> / 01</span>
+      <div class="mode-switch" role="group" aria-label="表示メニュー">
+        <button id="mode-anatomy" class="active" aria-pressed="true" disabled>
+          解剖</button
+        ><button id="mode-acupuncture" aria-pressed="false" disabled>
+          経穴マップ
+        </button>
       </div>
       <div class="header-actions">
         <button id="help" aria-label="操作方法">?</button
@@ -36,66 +39,69 @@
     </header>
     <div class="app">
       <aside id="sidebar">
-        <div class="sidebar-heading">
-          <span class="section-kicker">EXPLORE THE BODY</span>
-          <h1>人体を探索する<span>。</span></h1>
-          <p>見る。触れる。理解する。</p>
+        <div id="anatomy-panel">
+          <div class="sidebar-heading">
+            <span class="section-kicker">EXPLORE THE BODY</span>
+            <h1>人体を探索する<span>。</span></h1>
+            <p>見る。触れる。理解する。</p>
+          </div>
+          <div class="search-box">
+            <span>⌕</span
+            ><input
+              id="search"
+              placeholder="部位を検索…"
+              aria-label="部位を検索"
+            /><kbd>⌘ K</kbd>
+          </div>
+          <div class="section-title">
+            表示するシステム <span>03 SYSTEMS</span>
+          </div>
+          <div class="systems">
+            <button
+              class="system active"
+              data-layer="skeletal"
+              aria-pressed="true"
+            >
+              <span class="system-icon bone">♧</span
+              ><span class="system-copy"
+                ><strong>骨格系</strong><small>SKELETAL SYSTEM</small></span
+              ><span class="system-toggle"></span></button
+            ><button class="system" data-layer="muscular" aria-pressed="false">
+              <span class="system-icon muscle">≋</span
+              ><span class="system-copy"
+                ><strong>筋肉系</strong><small>MUSCULAR SYSTEM</small></span
+              ><span class="system-toggle"></span></button
+            ><button class="system" data-layer="organs" aria-pressed="false">
+              <span class="system-icon organ">♡</span
+              ><span class="system-copy"
+                ><strong>臓器</strong><small>INTERNAL ORGANS</small></span
+              ><span class="system-toggle"></span>
+            </button>
+          </div>
+          <details class="more-systems">
+            <summary>血管・神経など <span>＋ 7 SYSTEMS</span></summary>
+            <div id="advanced-systems" class="systems"></div>
+            <button id="all-systems">⊕ 全2,234構造を重ねて表示</button>
+          </details>
+          <div class="sidebar-separator"></div>
+          <div class="section-title">
+            クイックアクセス
+            <button id="clear-selection" title="選択を解除">リセット ↺</button>
+          </div>
+          <div id="quick-list"></div>
+          <div id="search-results" hidden></div>
+          <details class="favorites">
+            <summary>☆ お気に入り <span id="favorite-count">0</span></summary>
+            <div id="favorites-list"></div>
+          </details>
+          <div class="sidebar-foot">
+            <span class="anatomy-icon">✧</span
+            ><strong>知るほどに、見えてくる。</strong>
+            <p>ひとつのからだに、<br />無数のつながり。</p>
+            <button id="credits">モデルの出典・利用条件 ↗</button>
+          </div>
         </div>
-        <div class="search-box">
-          <span>⌕</span
-          ><input
-            id="search"
-            placeholder="部位を検索…"
-            aria-label="部位を検索"
-          /><kbd>⌘ K</kbd>
-        </div>
-        <div class="section-title">
-          表示するシステム <span>03 SYSTEMS</span>
-        </div>
-        <div class="systems">
-          <button
-            class="system active"
-            data-layer="skeletal"
-            aria-pressed="true"
-          >
-            <span class="system-icon bone">♧</span
-            ><span class="system-copy"
-              ><strong>骨格系</strong><small>SKELETAL SYSTEM</small></span
-            ><span class="system-toggle"></span></button
-          ><button class="system" data-layer="muscular" aria-pressed="false">
-            <span class="system-icon muscle">≋</span
-            ><span class="system-copy"
-              ><strong>筋肉系</strong><small>MUSCULAR SYSTEM</small></span
-            ><span class="system-toggle"></span></button
-          ><button class="system" data-layer="organs" aria-pressed="false">
-            <span class="system-icon organ">♡</span
-            ><span class="system-copy"
-              ><strong>臓器</strong><small>INTERNAL ORGANS</small></span
-            ><span class="system-toggle"></span>
-          </button>
-        </div>
-        <details class="more-systems">
-          <summary>血管・神経など <span>＋ 7 SYSTEMS</span></summary>
-          <div id="advanced-systems" class="systems"></div>
-          <button id="all-systems">⊕ 全2,234構造を重ねて表示</button>
-        </details>
-        <div class="sidebar-separator"></div>
-        <div class="section-title">
-          クイックアクセス
-          <button id="clear-selection" title="選択を解除">リセット ↺</button>
-        </div>
-        <div id="quick-list"></div>
-        <div id="search-results" hidden></div>
-        <details class="favorites">
-          <summary>☆ お気に入り <span id="favorite-count">0</span></summary>
-          <div id="favorites-list"></div>
-        </details>
-        <div class="sidebar-foot">
-          <span class="anatomy-icon">✧</span
-          ><strong>知るほどに、見えてくる。</strong>
-          <p>ひとつのからだに、<br />無数のつながり。</p>
-          <button id="credits">モデルの出典・利用条件 ↗</button>
-        </div>
+        <div id="acupuncture-panel" hidden></div>
       </aside>
       <main id="stage">
         <div
@@ -226,6 +232,54 @@
           <p id="quiz-feedback" role="status"></p>
           <button id="next-question" hidden>次の問題へ →</button>
         </article>
+        <div id="acu-tag" hidden><strong></strong><small></small></div>
+        <article id="acu-overview" hidden>
+          <span>漢字名と国際コードを一緒に</span>
+          <div>
+            <button data-acu-popular="LI4">合谷 <b>LI4</b></button
+            ><button data-acu-popular="ST36">足三里 <b>ST36</b></button
+            ><button data-acu-popular="PC6">内関 <b>PC6</b></button>
+          </div>
+          <small>位置は概略 · WHO公式3D座標ではありません</small>
+        </article>
+        <article id="acu-detail" hidden>
+          <div class="acu-detail-top">
+            <span>漢字名 ↔ 国際コード</span
+            ><button id="acu-close-detail" aria-label="経穴の詳細を閉じる">
+              ×
+            </button>
+          </div>
+          <div class="acu-name-code">
+            <h3 id="acu-point-name"></h3>
+            <b id="acu-point-code"></b>
+          </div>
+          <p id="acu-point-reading"></p>
+          <p id="acu-point-meridian"></p>
+          <p id="acu-point-aliases"></p>
+          <div id="acu-detail-sides">
+            <button id="acu-detail-left">左</button
+            ><button id="acu-detail-right">右</button>
+          </div>
+          <p id="acu-point-location"></p>
+          <div class="acu-card-actions">
+            <button id="acu-focus">◎ フォーカス</button
+            ><button id="acu-favorite" aria-pressed="false">☆ お気に入り</button
+            ><button id="acu-copy-link">↗ リンクをコピー</button
+            ><button id="acu-detail-source">出典・位置の精度</button>
+          </div>
+          <div class="acu-point-pagination">
+            <button id="acu-point-prev">← 前の穴</button
+            ><button id="acu-point-next">次の穴 →</button>
+          </div>
+        </article>
+        <div id="acu-mobile-toolbar">
+          <label
+            >経脈<select
+              id="acu-mobile-meridian"
+              aria-label="経穴マップの経脈"
+            ></select></label
+          ><span>位置は概略</span>
+        </div>
         <div class="bottom-controls">
           <div class="view-switch" aria-label="表示方向">
             <button data-view="front" class="active" aria-pressed="true">
