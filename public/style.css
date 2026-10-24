@@ -1633,3 +1633,4 @@ aside > * {
   max-height: none;
   overflow: visible;
 }
+header .header-actions { margin-left: auto; }

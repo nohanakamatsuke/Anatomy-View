@@ -519,7 +519,7 @@ export class AnatomyScene {
     ctx.font = 10 * scale + "px sans-serif";
     ctx.fillStyle = "#b6d5c7";
     ctx.fillText(
-      "ANATOMIA · BodyParts3D © DBCLS · CC BY 4.0",
+      "BodyParts3D © DBCLS · CC BY 4.0",
       16 * scale,
       canvas.height - 17 * scale,
     );
