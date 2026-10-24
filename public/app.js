@@ -15,6 +15,7 @@ let atlas,
   installPrompt,
   toastTimer;
 const loading = new Map();
+const loadingPhases = new Map();
 let favorites = [];
 try {
   const value = JSON.parse(localStorage.getItem("anatomia-favorites") || "[]");
@@ -58,9 +59,15 @@ function updateLoader() {
   const pending = [...loading].filter(([, v]) => v < 100);
   $("#loader").hidden = pending.length === 0;
   if (pending.length) {
-    const [id, progress] = pending.at(-1);
+    const [id, progress] =
+      pending.find(([, value]) => value > 1 && value < 100) || pending[0];
     $("#loading-text").textContent =
-      LAYERS[id].ja + " · " + Math.round(progress) + "%";
+      LAYERS[id].ja +
+      " · " +
+      (loadingPhases.get(id) || "準備中") +
+      " " +
+      Math.round(progress) +
+      "%";
     $("#progress").style.width = progress + "%";
   } else if (viewer) {
     const count = atlas.parts.filter((p) => enabled.includes(p.layer)).length;
@@ -372,7 +379,8 @@ $("#install").onclick = async () => {
         if (part && !document.body.classList.contains("quiz-mode"))
           select(part);
       },
-      onProgress: (id, value) => {
+      onProgress: (id, value, phase) => {
+        loadingPhases.set(id, phase);
         loading.set(id, value);
         updateLoader();
       },

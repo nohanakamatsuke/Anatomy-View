@@ -1,24 +1,8 @@
 import * as T from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
-import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
+import { ModelLoader } from "./model-loader.js";
+import { geometryViews } from "./geometry-data.js";
 import { isTap } from "./catalog.js";
-const COLORS = {
-  arterial: "#b75d62",
-  venous: "#648fb7",
-  sensory: "#aabdc4",
-  connective: "#bbc4b0",
-  reproductive: "#b5959b",
-  integumentary: "#bca18c",
-  skeletal: "#dfd9bf",
-  muscular: "#ac6460",
-  cardiac: "#b56469",
-  respiratory: "#c69baf",
-  digestive: "#bc9279",
-  urinary: "#b47164",
-  nervous: "#d4bca4",
-  endocrine: "#c0a7a0",
-  lymphatic: "#9aab83",
-};
 export class AnatomyScene {
   constructor(
     host,
@@ -33,6 +17,8 @@ export class AnatomyScene {
     this.onReady = onReady;
     this.onProject = onProject;
     this.layers = new Map();
+    this.modelLoader = new ModelLoader();
+    this.readyCallbacks = new Map();
     this.loading = new Map();
     this.enabled = new Set(["skeletal"]);
     this.selected = new Set();
@@ -218,6 +204,10 @@ export class AnatomyScene {
     }
     const controlsMoving = this.controls.update(dt);
     this.renderer.render(this.scene, this.camera);
+    for (const [id, resolve] of this.readyCallbacks) {
+      this.readyCallbacks.delete(id);
+      resolve();
+    }
     if (this.selectionCenter && this.onProject) {
       const p = this.selectionCenter
         .clone()
@@ -299,86 +289,47 @@ export class AnatomyScene {
     return promise;
   }
   async _loadLayer(id) {
+    const started = performance.now();
     const layer = this.atlas.layers.find((l) => l.id === id);
-    this.onProgress(id, 0);
-    const response = await fetch(layer.url);
-    if (!response.ok)
-      throw Error(
-        "モデルのダウンロードに失敗しました (" + response.status + ")",
-      );
-    let compressed;
-    const length =
-      Number(response.headers.get("content-length")) || layer.compressedBytes;
-    if (response.body) {
-      const reader = response.body.getReader(),
-        chunks = [];
-      let received = 0;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.byteLength;
-        this.onProgress(id, Math.min(85, (received / length) * 85));
-      }
-      compressed = new Blob(chunks);
-    } else compressed = await response.blob();
-    if (typeof DecompressionStream === "undefined")
-      throw Error(
-        "モデルの展開に対応していないブラウザです。最新版のSafariまたはChromeをご利用ください。",
-      );
-    let buffer = await new Response(
-      compressed.stream().pipeThrough(new DecompressionStream("gzip")),
-    ).arrayBuffer();
-    if (buffer.byteLength !== layer.bytes)
-      throw Error("モデルデータの長さが一致しません。再読み込みしてください。");
-    const geometries = [];
-    for (const part of this.atlas.parts) {
-      if (part.layer !== id) continue;
-      const g = new T.BufferGeometry();
-      g.setAttribute(
-        "position",
-        new T.BufferAttribute(
-          new Float32Array(buffer, part.positions, part.vertexCount * 3),
-          3,
-        ),
-      );
-      g.setAttribute(
-        "normal",
-        new T.BufferAttribute(
-          new Int16Array(buffer, part.normals, part.vertexCount * 3),
-          3,
-          true,
-        ),
-      );
-      g.setIndex(
-        new T.BufferAttribute(
-          new Uint32Array(buffer, part.indices, part.indexCount),
-          1,
-        ),
-      );
-      g.setAttribute(
-        "partIndex",
-        new T.BufferAttribute(
-          new Float32Array(part.vertexCount).fill(this.partIndex.get(part.id)),
-          1,
-        ),
-      );
-      const col = new T.Color(part.color || COLORS[part.system] || "#bdaf9c");
-      if (id === "muscular")
-        col.multiplyScalar(0.94 + (this.partIndex.get(part.id) % 7) * 0.018);
-      const color = new Float32Array(part.vertexCount * 3);
-      for (let i = 0; i < part.vertexCount; i++) {
-        color[i * 3] = col.r;
-        color[i * 3 + 1] = col.g;
-        color[i * 3 + 2] = col.b;
-      }
-      g.setAttribute("color", new T.BufferAttribute(color, 3));
-      geometries.push(g);
-    }
-    const geometry = mergeGeometries(geometries, false);
-    geometries.forEach((g) => g.dispose());
-    if (!geometry) throw Error("3Dデータを構成できませんでした");
-    geometry.computeBoundingSphere();
+    this.onProgress(id, 0, "表示データを確認中");
+    const result = await this.modelLoader.load(
+      {
+        atlas: {
+          layers: this.atlas.layers,
+          ...(layer.prepared ? {} : { parts: this.atlas.parts }),
+        },
+        id,
+        checksums: this.atlas.checksums,
+      },
+      (value, phase) => this.onProgress(id, value, phase),
+    );
+    const views = geometryViews(result.buffer, result.layout),
+      geometry = new T.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new T.BufferAttribute(views.positions, 3),
+    );
+    geometry.setAttribute(
+      "normal",
+      new T.BufferAttribute(views.normals, 3, true),
+    );
+    geometry.setIndex(new T.BufferAttribute(views.indices, 1));
+    geometry.setAttribute(
+      "partIndex",
+      new T.BufferAttribute(views.partIndices, 1),
+    );
+    geometry.setAttribute(
+      "color",
+      new T.BufferAttribute(views.colors, 3, true),
+    );
+    geometry.boundingBox = new T.Box3(
+      new T.Vector3(...result.layout.bounds[0]),
+      new T.Vector3(...result.layout.bounds[1]),
+    ).expandByScalar(0.00001);
+    geometry.boundingSphere = geometry.boundingBox.getBoundingSphere(
+      new T.Sphere(),
+    );
+    this.onProgress(id, 95, "3D表示を準備中");
     const mat = new T.MeshStandardMaterial({
       vertexColors: true,
       metalness: 0.04,
@@ -419,7 +370,20 @@ export class AnatomyScene {
     mesh.userData = { layer: id, uniforms };
     this.scene.add(mesh);
     this.layers.set(id, mesh);
-    this.onProgress(id, 100);
+    await new Promise((resolve) => {
+      this.readyCallbacks.set(id, resolve);
+      this.invalidate();
+    });
+    performance.measure("model-load:" + id, {
+      start: started,
+      end: performance.now(),
+      detail: {
+        source: result.source,
+        persisted: result.persisted,
+        ...result.timings,
+      },
+    });
+    this.onProgress(id, 100, "表示完了");
     this.onReady(id);
     this.invalidate();
   }
