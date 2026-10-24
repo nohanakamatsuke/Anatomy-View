@@ -58,7 +58,7 @@ export class AcupunctureMenu {
         )
         .join("");
     $("#acupuncture-panel").innerHTML =
-      `<div class="acu-heading"><span class="section-kicker">KANJI ↔ INTERNATIONAL CODE</span><h2>経穴マップ</h2><p>WHO標準361穴 · 漢字とコードの対応</p></div><div class="acu-browser"><label class="acu-search-label">漢字・読み・コードで検索<input id="acu-search" placeholder="合谷・LI4・ごうこく" autocomplete="off" spellcheck="false"></label><label class="acu-filter-label">経脈<select id="acu-meridian">${options}</select></label><div class="acu-side-options" role="group" aria-label="経穴の左右表示"><button data-acu-side="both" class="active" aria-pressed="true">左右</button><button data-acu-side="left" aria-pressed="false">左</button><button data-acu-side="right" aria-pressed="false">右</button></div><label class="acu-favorites-only"><input id="acu-only-favorites" type="checkbox"> お気に入りだけ</label><div id="acu-result-count" role="status"></div><div id="acu-list"></div><button id="acu-more" hidden>さらに表示</button><button id="acu-start-study" class="acu-study-button">漢字とコードを練習する →</button></div><section id="acu-study" hidden><div class="acu-study-top"><span>対応を覚える</span><button id="acu-end-study">終了 ×</button></div><label class="acu-filter-label">出題方向<select id="acu-study-direction"><option value="kanji-code">漢字 → コード</option><option value="code-kanji">コード → 漢字</option></select></label><div id="acu-study-score"></div><h3 id="acu-question"></h3><div id="acu-answers"></div><p id="acu-study-feedback" role="status"></p><button id="acu-next-question" hidden>次の問題 →</button></section><div class="acu-footnote"><strong>位置は学習用の概略です</strong><p>WHOが配布した3D座標ではありません。漢字名とコードの対応を学ぶ表示です。</p><button id="acu-sources">出典・範囲・ライセンス ↗</button><small>お気に入りはこの端末に保存されます。</small></div>`;
+      `<div class="acu-heading"><span class="section-kicker">KANJI ↔ INTERNATIONAL CODE</span><h2>経穴マップ</h2><p>WHO標準361穴 · 漢字とコードの対応</p></div><div class="acu-browser"><label class="acu-search-label">漢字・読み・コードで検索<input id="acu-search" placeholder="合谷・LI4・ごうこく" autocomplete="off" spellcheck="false"></label><div class="acu-quick-links" aria-label="よく見る経穴"><button data-acu-popular="LI4">合谷 <b>LI4</b></button><button data-acu-popular="ST36">足三里 <b>ST36</b></button><button data-acu-popular="PC6">内関 <b>PC6</b></button></div><label class="acu-filter-label">経脈<select id="acu-meridian">${options}</select></label><div class="acu-side-options" role="group" aria-label="経穴の左右表示"><button data-acu-side="both" class="active" aria-pressed="true">左右</button><button data-acu-side="left" aria-pressed="false">左</button><button data-acu-side="right" aria-pressed="false">右</button></div><label class="acu-favorites-only"><input id="acu-only-favorites" type="checkbox"> お気に入りだけ</label><div id="acu-result-count" role="status"></div><div id="acu-list"></div><button id="acu-more" hidden>さらに表示</button><button id="acu-start-study" class="acu-study-button">漢字とコードを練習する →</button></div><section id="acu-study" hidden><div class="acu-study-top"><span>対応を覚える</span><button id="acu-end-study">終了 ×</button></div><label class="acu-filter-label">出題方向<select id="acu-study-direction"><option value="kanji-code">漢字 → コード</option><option value="code-kanji">コード → 漢字</option></select></label><div id="acu-study-score"></div><h3 id="acu-question"></h3><div id="acu-answers"></div><p id="acu-study-feedback" role="status"></p><button id="acu-next-question" hidden>次の問題 →</button></section><div class="acu-footnote"><strong>位置は学習用の概略です</strong><p>WHOが配布した3D座標ではありません。漢字名とコードの対応を学ぶ表示です。</p><button id="acu-sources">出典・範囲・ライセンス ↗</button><small>お気に入りはこの端末に保存されます。</small></div>`;
     $("#acu-mobile-meridian").innerHTML = options;
     $("#acu-meridian").value = this.meridian;
     $("#acu-mobile-meridian").value = this.meridian;
@@ -104,8 +104,14 @@ export class AcupunctureMenu {
           (b.onclick = () => this.select(this.point(b.dataset.acuPopular))),
       );
     $("#acu-close-detail").onclick = () => this.clearSelection();
-    $("#acu-focus").onclick = () =>
+    $("#acu-expand").onclick = () => this.setExpanded($("#acu-details").hidden);
+    $("#acu-focus").onclick = () => {
       this.overlay.select(this.selected, this.selectedSide, true);
+      this.viewer.keepPointVisible(
+        this.overlay.selected?.world,
+        $("#acu-detail"),
+      );
+    };
     $("#acu-point-prev").onclick = () => this.step(-1);
     $("#acu-point-next").onclick = () => this.step(1);
     $("#acu-favorite").onclick = () => this.favorite();
@@ -164,7 +170,6 @@ export class AcupunctureMenu {
     document.body.classList.add("acupuncture-mode");
     $("#anatomy-panel").hidden = true;
     $("#acupuncture-panel").hidden = false;
-    $("#acu-overview").hidden = false;
     $("#acu-detail").hidden = true;
     this.overlay.show();
     this.viewer.reset();
@@ -184,7 +189,6 @@ export class AcupunctureMenu {
     $("#anatomy-panel").hidden = false;
     $("#acupuncture-panel").hidden = true;
     $("#acu-detail").hidden = true;
-    $("#acu-overview").hidden = true;
     $("#acu-tag").hidden = true;
     const s = this.snapshot;
     if (s) {
@@ -254,6 +258,7 @@ export class AcupunctureMenu {
   }
   select(point, side = "left", focus = true) {
     if (!point) return;
+    const changed = this.selected?.code !== point.code;
     this.selected = point;
     this.selectedSide = point.midline ? "midline" : side;
     if (this.meridian !== "all" && this.meridian !== point.meridian)
@@ -263,11 +268,17 @@ export class AcupunctureMenu {
     $("#acu-tag").hidden = true;
     this.overlay.select(point, this.selectedSide, focus);
     this.renderList();
-    $("#acu-overview").hidden = true;
     $("#acu-detail").hidden = false;
+    if (changed) this.setExpanded(false);
     $("#acu-point-name").textContent = point.ja;
     $("#acu-point-code").textContent = point.code;
     $("#acu-point-reading").textContent = point.reading;
+    $("#acu-side-summary").textContent = SIDE_NAMES[this.selectedSide];
+    $("#acu-point-exception").hidden = point.placement !== "intraoral-unmapped";
+    $("#acu-point-exception").textContent =
+      point.placement === "intraoral-unmapped"
+        ? "口腔内の穴のため、体表マーカーは表示しません。"
+        : "";
     const m = this.catalog.meridians.find((m) => m.code === point.meridian);
     $("#acu-point-meridian").textContent =
       m.fullName + " · " + point.number + " / " + m.count;
@@ -300,14 +311,29 @@ export class AcupunctureMenu {
         point.aliases.filter((a) => /^[A-Z]+\d+$/.test(a)).join(" / ")
       : "";
     this.hooks.closeMenu();
+    this.viewer.keepPointVisible(
+      this.overlay.selected?.world,
+      $("#acu-detail"),
+    );
+  }
+  setExpanded(expanded) {
+    $("#acu-details").hidden = !expanded;
+    $("#acu-detail").classList.toggle("expanded", expanded);
+    $("#acu-expand").setAttribute("aria-expanded", String(expanded));
+    $("#acu-expand").textContent = expanded ? "閉じる" : "詳細";
+    if (expanded)
+      this.viewer.keepPointVisible(
+        this.overlay.selected?.world,
+        $("#acu-detail"),
+      );
   }
   clearSelection() {
+    this.setExpanded(false);
     this.selected = null;
     this.overlay.selected = null;
     this.overlay.refresh();
     $("#acu-detail").hidden = true;
     $("#acu-tag").hidden = true;
-    $("#acu-overview").hidden = false;
     this.renderList();
   }
   step(delta) {

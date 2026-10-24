@@ -1,6 +1,6 @@
 {
   "name": "anatomy-view",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "type": "module",
   "private": true,
   "engines": {
@@ -12,6 +12,7 @@
     "build": "node build.mjs",
     "test": "node --test",
     "test:browser": "node scripts/browser-cache-check.mjs",
+    "test:design": "node scripts/browser-design-check.mjs",
     "test:acupuncture": "node scripts/browser-acupuncture-check.mjs",
     "bake:acupuncture": "node scripts/bake-acupoints.mjs"
   },

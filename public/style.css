@@ -2297,3 +2297,764 @@ header .header-actions {
     scrollbar-width: thin;
   }
 }
+/* v1.3: a quiet canvas, with details revealed only after selection. */
+:root {
+  --app-header-height: 64px;
+  --canvas-bottom: 20px;
+}
+header {
+  height: var(--app-header-height);
+  padding: 0 24px;
+}
+.app {
+  height: calc(100dvh - var(--app-header-height));
+  min-height: 0;
+}
+.header-actions {
+  gap: 8px;
+}
+.header-actions > button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid #aac6b51a;
+  border-radius: 8px;
+  color: #bfd0c7;
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.header-actions > #reset-camera {
+  font-size: 24px;
+  padding: 5px 10px;
+}
+.header-actions > #menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 15px;
+}
+.header-actions > #menu span {
+  font-size: 12px;
+}
+.mode-switch button {
+  min-height: 42px;
+  font-size: 13px;
+  padding: 8px 17px;
+}
+.stage-head,
+.stage-footer {
+  display: none;
+}
+.axis-label.left {
+  left: 18px;
+}
+.axis-label.right {
+  right: 18px;
+}
+.sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+.sidebar-actions button {
+  min-height: 44px;
+  font-size: 12px;
+  color: #a7bdb2;
+  padding: 8px;
+}
+.sidebar-actions #help {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 5px;
+}
+.sidebar-actions #install {
+  margin-left: auto;
+  font-size: 11px;
+}
+.sidebar-actions #help::after {
+  content: " 使い方";
+}
+.sidebar-heading h1 {
+  font-size: 19px;
+  margin: 0 0 22px;
+}
+#anatomy-panel {
+  min-height: 0;
+  flex: 1 0 auto;
+}
+.sidebar-foot {
+  padding-top: 22px;
+}
+.acu-heading .section-kicker {
+  display: none;
+}
+.acu-heading h2 {
+  margin: 0 0 9px;
+}
+.acu-heading p {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.acu-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+.acu-quick-links button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #b8d0ae20;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #bdcfbf;
+}
+.acu-quick-links b {
+  font:
+    500 11px ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  color: #dfc98e;
+}
+.acu-point-row > b,
+#acu-point-code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+#view-options {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  z-index: 12;
+  width: 290px;
+  max-width: calc(100% - 24px);
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid #b0c8bc30;
+  border-radius: 12px;
+  background: #172a2ff7;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 60px #0005;
+  scrollbar-width: thin;
+}
+.view-options-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.view-options-heading strong {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.view-options-heading button {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 24px;
+  color: #a4bfb1;
+}
+#view-options .bottom-controls {
+  position: static;
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  backdrop-filter: none;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+#view-options .view-switch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+#view-options .view-switch button {
+  min-height: 44px;
+  font-size: 13px;
+  padding: 8px;
+}
+#view-options .bottom-divider {
+  display: none;
+}
+#view-options .opacity-control {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  padding: 0 3px;
+}
+#view-options .opacity-control input {
+  flex: 1;
+  width: auto;
+  min-width: 50px;
+  height: 4px;
+}
+#view-options .opacity-control > span {
+  font-size: 11px;
+  width: 34px;
+}
+#view-options .canvas-tools {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 0;
+  box-shadow: none;
+  background: none;
+  backdrop-filter: none;
+  padding: 16px 0;
+  gap: 5px;
+}
+#view-options .canvas-tools button {
+  width: auto;
+  height: 44px;
+  min-width: 44px;
+  font-size: 24px;
+  background: #ffffff04;
+  border: 1px solid #ffffff0b;
+}
+#view-options .canvas-tools > span {
+  display: none;
+}
+#view-options #tools-toggle {
+  position: static;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  font-size: 12px;
+  margin: 0;
+}
+#view-options #advanced-tools {
+  position: static;
+  width: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+#view-options.advanced .view-basic {
+  display: none;
+}
+#view-options #advanced-tools .tools-title {
+  font-size: 10px;
+  margin-top: 12px;
+}
+#view-options #advanced-tools .tools-title button {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 24px;
+}
+#view-options .tool-actions button {
+  min-height: 44px;
+  font-size: 11px;
+}
+#view-options .tools-hint {
+  font-size: 11px;
+  line-height: 1.8;
+}
+#view-options .checkbox-label,
+#view-options .separation-label {
+  font-size: 13px;
+  min-height: 40px;
+}
+#view-options .clip-row select {
+  font-size: 13px;
+  min-height: 44px;
+}
+#inspector,
+#acu-detail {
+  z-index: 6;
+  padding: 20px;
+  border-radius: 12px;
+  max-height: calc(100% - 44px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+#inspector {
+  width: 290px;
+}
+#acu-detail {
+  width: 310px;
+}
+.sheet-close {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 25px;
+  color: #a3bbad;
+  padding: 6px;
+}
+.sheet-primary-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 14px;
+}
+.sheet-primary-actions button {
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 1px solid #a7c5ab20;
+  border-radius: 6px;
+  background: #a7c5ab0b;
+  font-size: 12px;
+  color: #bdd0bd;
+}
+.sheet-primary-actions button[aria-expanded="true"],
+.sheet-primary-actions button[aria-pressed="true"] {
+  background: #a7c5ab23;
+  color: #e2e8d7;
+}
+.sheet-primary-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+#inspector h3 {
+  margin: 4px 40px 8px 0;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+#part-english {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  color: #9bb0a4;
+  overflow-wrap: anywhere;
+}
+#anatomy-details,
+#acu-details {
+  border-top: 1px solid #ffffff10;
+  margin-top: 16px;
+  padding-top: 14px;
+}
+#anatomy-details #part-description {
+  display: block;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #b3c4b7;
+}
+#anatomy-details #part-source {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #8fa598;
+  margin-top: 14px;
+}
+#anatomy-details #part-tags {
+  margin: 0 0 12px;
+}
+#anatomy-details #part-tags span {
+  font-size: 10px;
+}
+#anatomy-details .detail-actions button {
+  font-size: 12px;
+  min-height: 44px;
+  padding: 8px;
+}
+.acu-name-code {
+  margin: 3px 42px 8px 0;
+  gap: 13px;
+  flex-wrap: wrap;
+}
+.acu-name-code h3 {
+  font-size: 25px;
+  line-height: 1.4;
+  letter-spacing: 1px;
+}
+.acu-name-code > b {
+  font-size: 24px;
+}
+.acu-summary-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #a6bca8;
+}
+.acu-summary-context #acu-point-reading {
+  font-size: 11px;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+.acu-summary-context #acu-side-summary {
+  font-size: 11px;
+}
+.precision-label {
+  font-size: 10px;
+  color: #d0c69d;
+}
+.acu-primary-actions {
+  grid-template-columns: 1fr 1.5fr 44px 44px;
+}
+.acu-primary-actions #acu-point-prev,
+.acu-primary-actions #acu-point-next {
+  font-size: 24px;
+  padding: 4px;
+}
+#acu-details #acu-point-meridian {
+  font-size: 12px;
+  line-height: 1.7;
+}
+#acu-details #acu-point-aliases {
+  font-size: 11px;
+  line-height: 1.7;
+}
+#acu-details #acu-point-location {
+  font-size: 11px;
+  line-height: 1.9;
+}
+#acu-details #acu-detail-sides button {
+  min-width: 60px;
+  min-height: 44px;
+  font-size: 12px;
+}
+#acu-details .acu-card-actions {
+  grid-template-columns: 1fr 1fr;
+}
+#acu-details .acu-card-actions button {
+  min-height: 44px;
+  font-size: 11px;
+  padding: 8px;
+}
+#acu-details .acu-card-actions button:last-child {
+  grid-column: 1/-1;
+}
+#acu-point-exception {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #d1c9ab;
+  margin: 12px 0 0;
+}
+#info-dialog #close-info {
+  min-width: 44px;
+  min-height: 44px;
+}
+.acu-footnote p {
+  font-size: 11px;
+  line-height: 1.8;
+}
+.acu-footnote strong {
+  font-size: 11px;
+}
+@media (max-width: 900px) {
+  :root {
+    --app-header-height: 60px;
+    --canvas-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  header {
+    height: var(--app-header-height);
+    padding: 0 max(12px, env(safe-area-inset-left, 0px));
+    gap: 8px;
+  }
+  .app {
+    height: calc(100dvh - var(--app-header-height));
+    min-height: 0;
+  }
+  aside {
+    top: var(--app-header-height);
+    bottom: 0;
+  }
+  .mode-switch {
+    flex-shrink: 0;
+  }
+  .mode-switch button {
+    min-height: 42px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .header-actions {
+    gap: 5px;
+  }
+  .header-actions > button {
+    padding: 6px 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .header-actions > #menu span {
+    display: none;
+  }
+  .header-actions > #reset-camera {
+    font-size: 25px;
+  }
+  .header-actions > #view-toggle {
+    font-size: 12px;
+  }
+  #view-options {
+    right: 12px;
+    top: 10px;
+    width: 290px;
+    max-height: calc(100% - 24px);
+  }
+  #view-options #fullscreen {
+    display: none;
+  }
+  #view-options .canvas-tools {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #mobile-layers {
+    bottom: var(--canvas-bottom);
+    left: 12px;
+    right: 12px;
+    transform: none;
+    width: auto;
+    max-width: none;
+    gap: 4px;
+    padding: 5px;
+    border-radius: 12px;
+  }
+  #mobile-layers button {
+    min-height: 48px;
+    padding: 10px 5px;
+    gap: 7px;
+  }
+  #mobile-layers button span {
+    font-size: 12px;
+  }
+  #acu-mobile-toolbar {
+    bottom: var(--canvas-bottom);
+    left: 12px;
+    right: 12px;
+    padding: 7px 12px;
+    min-height: 58px;
+    gap: 8px;
+  }
+  #acu-mobile-toolbar label {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    gap: 5px;
+  }
+  #acu-mobile-toolbar select {
+    font-size: 16px;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    min-height: 44px;
+  }
+  #acu-mobile-toolbar > span {
+    font-size: 11px;
+    color: #d5cda8;
+  }
+  #selection-label,
+  #acu-tag {
+    display: none !important;
+  }
+  #inspector,
+  #acu-detail,
+  #quiz-card {
+    left: 12px;
+    right: 12px;
+    bottom: calc(var(--canvas-bottom) + 70px);
+    top: auto;
+    width: auto;
+    max-height: min(56dvh, 480px);
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: linear-gradient(130deg, #20342df7, #152b2cf9);
+    box-shadow: 0 6px 32px #0003;
+  }
+  #inspector h3 {
+    font-size: 18px;
+    margin: 2px 40px 5px 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  #inspector.expanded h3 {
+    -webkit-line-clamp: unset;
+  }
+  #part-english {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  #inspector .sheet-primary-actions {
+    margin-top: 10px;
+  }
+  .acu-name-code {
+    margin: 1px 40px 7px 0;
+    gap: 12px;
+  }
+  .acu-name-code h3 {
+    font-size: 24px;
+    line-height: 1.4;
+  }
+  .acu-name-code > b {
+    font-size: 23px;
+  }
+  .acu-summary-context #acu-point-reading {
+    font-size: 11px;
+  }
+  .sheet-primary-actions {
+    margin-top: 11px;
+    gap: 6px;
+  }
+  .acu-primary-actions {
+    grid-template-columns: 1fr 1.5fr 44px 44px;
+  }
+  .sheet-primary-actions button {
+    font-size: 12px;
+    min-height: 44px;
+  }
+  #part-description {
+    display: block;
+  }
+  #anatomy-details #part-tags span {
+    font-size: 10px;
+  }
+  #anatomy-details #part-source {
+    display: block;
+  }
+  #anatomy-details #part-description {
+    font-size: 12px;
+  }
+  #anatomy-details .detail-actions button {
+    font-size: 12px;
+  }
+  .acu-footnote button {
+    min-height: 44px;
+    font-size: 12px;
+  }
+  .search-box input,
+  .acu-search-label input,
+  .acu-filter-label select,
+  .notes-heading input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .search-box {
+    padding: 0 10px;
+  }
+  .search-box input {
+    padding: 10px 0;
+  }
+  .acu-search-label input::placeholder {
+    font-size: 13px;
+  }
+  .acu-search-label,
+  .acu-filter-label {
+    font-size: 12px;
+  }
+  .acu-side-options button {
+    min-height: 44px;
+    font-size: 12px;
+  }
+  .acu-favorites-only {
+    font-size: 12px;
+    min-height: 36px;
+  }
+  #acu-result-count {
+    font-size: 11px;
+  }
+  .acu-point-row {
+    padding: 12px 10px;
+    min-height: 54px;
+  }
+  .acu-point-row strong {
+    font-size: 15px;
+  }
+  .acu-point-row small {
+    font-size: 11px;
+  }
+  .acu-point-row > b {
+    font-size: 14px;
+  }
+  .acu-study-button,
+  #acu-more {
+    font-size: 12px;
+    min-height: 44px;
+  }
+  #toast {
+    bottom: calc(var(--canvas-bottom) + 78px);
+  }
+  .acu-quick-links button {
+    font-size: 12px;
+    min-height: 44px;
+  }
+  .acu-quick-links b {
+    font-size: 12px;
+  }
+  .axis-label {
+    font-size: 11px;
+  }
+  .sidebar-actions {
+    margin-bottom: 16px;
+  }
+  .sidebar-heading h1 {
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+}
+@media (max-width: 360px) {
+  header {
+    padding: 0 9px;
+    gap: 5px;
+  }
+  .mode-switch button {
+    padding: 8px 9px;
+    font-size: 11px;
+  }
+  .header-actions {
+    gap: 3px;
+  }
+  .header-actions > button {
+    padding: 6px 7px;
+  }
+  .acu-name-code h3 {
+    font-size: 22px;
+  }
+  .acu-name-code > b {
+    font-size: 21px;
+  }
+  #inspector,
+  #acu-detail {
+    padding: 13px 12px;
+  }
+  .acu-primary-actions {
+    grid-template-columns: 1fr 1.3fr 44px 44px;
+  }
+  .sheet-primary-actions button {
+    font-size: 11px;
+  }
+}
+.header-actions > #reset-camera {
+  font-size: 12px;
+}
+#view-options .canvas-tools button {
+  font-size: 12px;
+}
+#view-options #advanced-tools .tools-title button {
+  font-size: 12px;
+}
+@media (max-width: 900px) {
+  .acu-favorites-only {
+    min-height: 44px;
+  }
+  #view-options select {
+    font-size: 16px;
+  }
+}

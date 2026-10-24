@@ -122,7 +122,8 @@ function resetSelection() {
   isolated = false;
   viewer.setIsolation(false);
   viewer.setSelection([]);
-  $("#inspector-empty").hidden = false;
+  $("#inspector").hidden = true;
+  setAnatomyExpanded(false);
   $("#inspector-detail").hidden = true;
   $("#close-detail").hidden = true;
   $("#selection-label").hidden = true;
@@ -152,13 +153,14 @@ async function select(entry, focus = false, forQuiz = false) {
   isolated = false;
   viewer.setIsolation(false);
   viewer.setSelection(valid);
-  $("#inspector-empty").hidden = true;
+  $("#inspector").hidden = false;
+  setAnatomyExpanded(false);
   $("#inspector-detail").hidden = false;
   $("#close-detail").hidden = false;
   const label = entry.ja || japanese(entry.name);
   $("#part-title").textContent = label;
-  $("#part-english").textContent =
-    label === entry.name ? "SOURCE ANATOMICAL NAME" : entry.name;
+  $("#part-english").textContent = label === entry.name ? "" : entry.name;
+  $("#part-english").hidden = label === entry.name;
   $("#detail-kicker").textContent = "STRUCTURE / " + LAYERS[parts[0].layer].en;
   $("#part-tags").innerHTML =
     layers.map((id) => "<span>" + LAYERS[id].ja + "</span>").join("") +
@@ -177,6 +179,7 @@ async function select(entry, focus = false, forQuiz = false) {
   closeMenu();
   if (!layers.every((l) => enabled.includes(l))) await enableLayers(layers);
   if (focus) viewer.focus(valid);
+  viewer.keepPointVisible(viewer.selectionCenter, $("#inspector"));
 }
 function makeQuickList() {
   const list = FEATURED.filter((f) => enabled.includes(f.layer));
@@ -196,10 +199,14 @@ function makeQuickList() {
     .join("");
 }
 $("#menu").onclick = () => {
+  closeViewOptions();
   const open = $("#sidebar").classList.toggle("open");
   $("#menu").setAttribute("aria-expanded", String(open));
 };
-$("#canvas-host").addEventListener("pointerdown", closeMenu);
+$("#canvas-host").addEventListener("pointerdown", () => {
+  closeMenu();
+  closeViewOptions();
+});
 $("#retry").onclick = () => location.reload();
 $("#quick-list").onclick = (e) => {
   const b = e.target.closest("[data-feature]");
@@ -281,7 +288,10 @@ $("#clear-selection").onclick = () => {
   }
 };
 $("#focus-part").onclick = () => {
-  if (selection) viewer.focus(selection.elements);
+  if (selection) {
+    viewer.focus(selection.elements);
+    viewer.keepPointVisible(viewer.selectionCenter, $("#inspector"));
+  }
 };
 $("#isolate").onclick = () => {
   if (!selection) return;
@@ -289,13 +299,17 @@ $("#isolate").onclick = () => {
   viewer.setIsolation(isolated);
   $("#isolate").setAttribute("aria-pressed", String(isolated));
   $("#isolate").textContent = isolated ? "◇ 全体に戻す" : "◇ 単独表示";
-  if (isolated) viewer.focus(selection.elements);
+  if (isolated) {
+    viewer.focus(selection.elements);
+    viewer.keepPointVisible(viewer.selectionCenter, $("#inspector"));
+  }
 };
 $("#zoom-in").onclick = () => viewer?.zoom(0.83);
 $("#zoom-out").onclick = () => viewer?.zoom(1.2);
 $("#reset-camera").onclick = () => {
   if (viewer) {
-    resetSelection();
+    if (acupunctureMenu?.active) acupunctureMenu.clearSelection();
+    else resetSelection();
     viewer.reset();
     document.querySelectorAll("[data-view]").forEach((b) => {
       b.classList.toggle("active", b.dataset.view === "front");
@@ -368,7 +382,10 @@ document.addEventListener("keydown", (e) => {
     $("#menu").setAttribute("aria-expanded", "true");
     $("#search").focus();
   }
-  if (e.key === "Escape") closeMenu();
+  if (e.key === "Escape") {
+    closeMenu();
+    closeViewOptions();
+  }
 });
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
@@ -487,6 +504,8 @@ $("#all-systems").onclick = () => {
   }
 };
 function toggleTools(open) {
+  if (open) openViewOptions();
+  $("#view-options").classList.toggle("advanced", open);
   $("#advanced-tools").hidden = !open;
   $("#tools-toggle").setAttribute("aria-expanded", String(open));
 }
@@ -578,7 +597,7 @@ async function quizQuestion() {
 }
 $("#start-quiz").onclick = () => {
   if (!viewer) return;
-  toggleTools(false);
+  closeViewOptions();
   quizCorrect = 0;
   quizTotal = 0;
   viewer.restoreHidden();
@@ -598,6 +617,7 @@ $("#end-quiz").onclick = () => {
 
 async function changeMode(mode) {
   if (!viewer || modeTransition) return;
+  closeViewOptions();
   modeTransition = true;
   document
     .querySelectorAll(".mode-switch button")
@@ -659,3 +679,27 @@ async function changeMode(mode) {
 }
 $("#mode-anatomy").onclick = () => changeMode("anatomy");
 $("#mode-acupuncture").onclick = () => changeMode("acupuncture");
+
+function setAnatomyExpanded(expanded) {
+  $("#anatomy-details").hidden = !expanded;
+  $("#inspector").classList.toggle("expanded", expanded);
+  $("#anatomy-expand").setAttribute("aria-expanded", String(expanded));
+  $("#anatomy-expand").textContent = expanded ? "閉じる" : "詳細";
+  if (expanded)
+    viewer?.keepPointVisible(viewer.selectionCenter, $("#inspector"));
+}
+$("#anatomy-expand").onclick = () =>
+  setAnatomyExpanded($("#anatomy-details").hidden);
+function openViewOptions() {
+  closeMenu();
+  $("#view-options").hidden = false;
+  $("#view-toggle").setAttribute("aria-expanded", "true");
+}
+function closeViewOptions() {
+  $("#view-options").hidden = true;
+  $("#view-toggle").setAttribute("aria-expanded", "false");
+  toggleTools(false);
+}
+$("#view-toggle").onclick = () =>
+  $("#view-options").hidden ? openViewOptions() : closeViewOptions();
+$("#close-view").onclick = closeViewOptions;

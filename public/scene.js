@@ -492,6 +492,47 @@ export class AnatomyScene {
     );
     return canvas.toDataURL("image/png");
   }
+  keepPointVisible(position, panel) {
+    if (
+      !position ||
+      this.host.clientWidth > 900 ||
+      panel.hidden ||
+      getComputedStyle(panel).display === "none"
+    )
+      return;
+    const rect = this.host.getBoundingClientRect(),
+      sheet = panel.getBoundingClientRect();
+    if (!sheet.width || !sheet.height) return;
+    const world = position.clone();
+    if (position === this.selectionCenter)
+      world.add(
+        this.layers.get(this.selectionLayer)?.position || new T.Vector3(),
+      );
+    // Respect the destination of an in-flight focus animation when details open quickly.
+    const camera = this.camera.clone(),
+      destination = this.cameraAnimation?.toPosition || this.camera.position,
+      target = this.cameraAnimation?.toTarget || this.controls.target;
+    camera.position.copy(destination);
+    camera.lookAt(target);
+    camera.updateMatrixWorld(true);
+    const point = world.clone().project(camera),
+      x = ((point.x + 1) * rect.width) / 2 + rect.left,
+      y = ((1 - point.y) * rect.height) / 2 + rect.top;
+    if (x < sheet.left - 12 || x > sheet.right + 12 || y < sheet.top - 24)
+      return;
+    const depth = -world.clone().applyMatrix4(camera.matrixWorldInverse).z;
+    if (depth <= 0) return;
+    const shift =
+        ((sheet.top - 24 - y) *
+          2 *
+          depth *
+          Math.tan(T.MathUtils.degToRad(this.camera.fov / 2))) /
+        rect.height,
+      up = new T.Vector3()
+        .setFromMatrixColumn(camera.matrixWorld, 1)
+        .multiplyScalar(shift);
+    this.animateCamera(destination.clone().add(up), target.clone().add(up));
+  }
   focus(ids) {
     const box = new T.Box3();
     for (const id of ids) {

@@ -311,7 +311,10 @@ try {
   );
   await page.touchscreen.tap(195, 300);
   assert.equal(await page.locator("#inspector-detail").isVisible(), true);
+  await page.locator("#anatomy-expand").tap();
   await page.locator("#hide-part").tap();
+  if (!(await page.locator("#view-options").isVisible()))
+    await page.locator("#view-toggle").tap();
   await page.locator("#tools-toggle").tap();
   await page.locator("#restore-hidden").tap();
   await page.locator("#close-tools").tap();
@@ -320,6 +323,8 @@ try {
   const beforeClip = createHash("sha256")
     .update(await page.locator("canvas").screenshot())
     .digest("hex");
+  if (!(await page.locator("#view-options").isVisible()))
+    await page.locator("#view-toggle").tap();
   await page.locator("#tools-toggle").tap();
   await page.locator("#clip-enabled").check();
   await page.locator("#clip-axis").selectOption("y");
@@ -347,6 +352,7 @@ try {
   await page.locator("#search").fill("心臓");
   await page.locator("#search-results .quick-item").first().tap();
   assert.equal(await page.locator("#part-title").textContent(), "心臓");
+  await page.locator("#anatomy-expand").tap();
   await page.locator("#favorite").tap();
   assert.equal(await page.locator("#favorite-count").textContent(), "1");
   await page.reload();

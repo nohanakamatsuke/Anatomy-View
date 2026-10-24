@@ -75,19 +75,25 @@ try {
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   );
+  await page.locator("#menu").tap();
   await page.locator('[data-acu-popular="LI4"]').tap();
   assert.equal(await page.locator("#acu-point-name").textContent(), "合谷");
   assert.equal(await page.locator("#acu-point-code").textContent(), "LI4");
   await page.waitForTimeout(1200);
-  const tag = await page.locator("#acu-tag").boundingBox();
+  const tag = await page
+    .locator("#acu-tag")
+    .evaluate((el) => ({
+      x: parseFloat(el.style.left),
+      y: parseFloat(el.style.top),
+    }));
   assert.ok(tag);
   const canvas = await page.locator("#canvas-host").boundingBox(),
-    tap = { x: tag.x - 18, y: tag.y + 55 };
+    tap = { x: canvas.x + tag.x - 18, y: canvas.y + tag.y + 55 };
   await page.locator("#acu-close-detail").tap();
   await page.touchscreen.tap(tap.x, tap.y);
   assert.equal(await page.locator("#acu-point-code").textContent(), "LI4");
   assert.equal(await page.locator("#acu-detail").isVisible(), true);
-  await page.screenshot({ path: "/tmp/acupuncture-v12-mobile.png" });
+  await page.screenshot({ path: "/tmp/acupuncture-v13-mobile.png" });
   await page.locator("#menu").tap();
   await page.locator("#acu-search").fill("ＳＪ－０５");
   await page.locator('[data-acu-code="TE5"]').tap();
@@ -100,6 +106,7 @@ try {
   assert.equal(await page.locator("#acu-point-code").textContent(), "TE4");
   await page.locator("#acu-point-next").tap();
   assert.equal(await page.locator("#acu-point-code").textContent(), "TE5");
+  await page.locator("#acu-expand").tap();
   await page.locator("#acu-detail-right").tap();
   assert.ok(
     (await page.locator("#acu-detail-right").getAttribute("class")).includes(
@@ -194,6 +201,7 @@ try {
   await context.setOffline(true);
   await page.reload();
   await modeReady();
+  await page.locator("#menu").tap();
   await page.locator('[data-acu-popular="LI4"]').tap();
   assert.equal(await page.locator("#acu-point-name").textContent(), "合谷");
   assert.deepEqual(errors, []);
@@ -214,6 +222,7 @@ try {
   );
   assert.equal(await dp.locator("#acu-point-name").textContent(), "足三里");
   assert.equal(await dp.locator("#acu-point-code").textContent(), "ST36");
+  await dp.locator("#acu-expand").click();
   await dp.locator("#acu-detail-source").click();
   assert.ok(
     (await dp.locator("#info-content").textContent()).includes(
@@ -221,7 +230,7 @@ try {
     ),
   );
   await dp.locator("#close-info").click();
-  await dp.screenshot({ path: "/tmp/acupuncture-v12-desktop.png" });
+  await dp.screenshot({ path: "/tmp/acupuncture-v13-desktop.png" });
   await dp.setViewportSize({ width: 320, height: 568 });
   assert.ok(
     await dp.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

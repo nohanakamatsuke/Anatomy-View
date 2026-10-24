@@ -30,20 +30,30 @@
         </button>
       </div>
       <div class="header-actions">
-        <button id="help" aria-label="操作方法">?</button
-        ><button id="install" hidden>↓ インストール</button
-        ><button id="menu" aria-expanded="false" aria-controls="sidebar">
+        <button id="reset-camera" title="全身を表示" aria-label="全身を表示">
+          全身</button
+        ><button
+          id="view-toggle"
+          aria-expanded="false"
+          aria-controls="view-options"
+          title="表示調整"
+        >
+          表示
+        </button>
+        <button id="menu" aria-expanded="false" aria-controls="sidebar">
           ☰ <span>探索</span>
         </button>
       </div>
     </header>
     <div class="app">
       <aside id="sidebar">
+        <div class="sidebar-actions">
+          <button id="help" aria-label="操作方法">?</button
+          ><button id="install" hidden>↓ インストール</button>
+        </div>
         <div id="anatomy-panel">
           <div class="sidebar-heading">
-            <span class="section-kicker">EXPLORE THE BODY</span>
-            <h1>人体を探索する<span>。</span></h1>
-            <p>見る。触れる。理解する。</p>
+            <h1>部位を探す</h1>
           </div>
           <div class="search-box">
             <span>⌕</span
@@ -95,9 +105,6 @@
             <div id="favorites-list"></div>
           </details>
           <div class="sidebar-foot">
-            <span class="anatomy-icon">✧</span
-            ><strong>知るほどに、見えてくる。</strong>
-            <p>ひとつのからだに、<br />無数のつながり。</p>
             <button id="credits">モデルの出典・利用条件 ↗</button>
           </div>
         </div>
@@ -117,108 +124,47 @@
             <span></span> BODY PARTS 3D <span class="badge-version">4.0</span>
           </div>
         </div>
-        <div class="hero">
-          <div class="eyebrow">A NEW PERSPECTIVE ON YOU</div>
-          <p>ひとつずつ、立体でひもとく。</p>
-        </div>
         <div class="axis-label left">R</div>
         <div class="axis-label right">L</div>
-        <button
-          id="tools-toggle"
-          aria-expanded="false"
-          aria-controls="advanced-tools"
-        >
-          ⚙ 探索ツール
-        </button>
-        <section id="advanced-tools" hidden>
-          <div class="tools-title">
-            EXPLORATION TOOLS
-            <button id="close-tools" aria-label="探索ツールを閉じる">×</button>
-          </div>
-          <label class="checkbox-label"
-            ><input id="clip-enabled" type="checkbox" /> 断面クリップ</label
-          >
-          <div class="clip-row">
-            <select id="clip-axis" aria-label="断面の方向">
-              <option value="x">矢状面</option>
-              <option value="y">水平面</option>
-              <option value="z">前額面</option></select
-            ><input
-              id="clip-position"
-              type="range"
-              min="-100"
-              max="100"
-              value="0"
-              aria-label="断面の位置"
-            />
-          </div>
-          <p class="tools-hint">
-            表面を切り取り内部を表示します。切断面の組織画像は含みません。
-          </p>
-          <label class="separation-label"
-            >システムの分離
-            <input
-              id="separation"
-              type="range"
-              min="0"
-              max="100"
-              value="0"
-              aria-label="システムの分離度"
-          /></label>
-          <div class="tool-actions">
-            <button id="restore-hidden">↺ 非表示を戻す</button
-            ><button id="snapshot">↓ 画像を保存</button
-            ><button id="start-quiz">✧ 部位クイズ</button>
-          </div>
-        </section>
-        <div class="canvas-tools">
-          <button id="zoom-in" title="拡大" aria-label="拡大">＋</button
-          ><button id="zoom-out" title="縮小" aria-label="縮小">−</button
-          ><span></span
-          ><button id="reset-camera" title="全身を表示" aria-label="全身を表示">
-            ⛶</button
-          ><button
-            id="auto-rotate"
-            title="自動回転"
-            aria-label="自動回転"
-            aria-pressed="false"
-          >
-            ↻</button
-          ><button id="fullscreen" title="全画面" aria-label="全画面表示">
-            ⤢
-          </button>
-        </div>
+
         <div id="selection-label" hidden>
           <span></span><strong></strong><small></small>
         </div>
-        <article id="inspector">
-          <div class="inspector-top">
-            <span class="section-kicker" id="detail-kicker"
-              >DISCOVER YOUR ANATOMY</span
-            ><button id="close-detail" aria-label="詳細を閉じる" hidden>
-              ×
-            </button>
-          </div>
-          <div id="inspector-empty">
-            <div class="inspector-symbol">⌁</div>
-            <h3>触れて、発見する。</h3>
-            <p>モデルの部位をタップすると、<br />名前と構造を確認できます。</p>
-            <div class="tap-hint"><span>◎</span> 気になる部位を選択</div>
-          </div>
+        <article
+          id="inspector"
+          class="selection-sheet"
+          hidden
+          aria-label="選択した部位"
+        >
+          <button
+            id="close-detail"
+            class="sheet-close"
+            aria-label="詳細を閉じる"
+          >
+            ×</button
+          ><span class="visually-hidden" id="detail-kicker"></span>
           <div id="inspector-detail" hidden>
             <h3 id="part-title"></h3>
             <p id="part-english"></p>
-            <div id="part-tags"></div>
-            <p id="part-description"></p>
-            <div class="detail-actions">
-              <button id="focus-part">◎ フォーカス</button
-              ><button id="isolate" aria-pressed="false">◇ 単独表示</button>
+            <div class="sheet-primary-actions">
+              <button
+                id="anatomy-expand"
+                aria-expanded="false"
+                aria-controls="anatomy-details"
+              >
+                詳細</button
+              ><button id="focus-part">フォーカス</button
+              ><button id="isolate" aria-pressed="false">単独表示</button>
             </div>
-            <div class="detail-actions secondary-actions">
-              <button id="favorite" aria-pressed="false">☆ お気に入り</button
-              ><button id="hide-part">◌ 非表示にする</button>
+            <div id="anatomy-details" hidden>
+              <div id="part-tags"></div>
+              <p id="part-description"></p>
+              <div class="detail-actions secondary-actions">
+                <button id="favorite" aria-pressed="false">☆ お気に入り</button
+                ><button id="hide-part">非表示にする</button>
+              </div>
+              <small id="part-source"></small>
             </div>
-            <small id="part-source"></small>
           </div>
         </article>
         <article id="quiz-card" hidden>
@@ -233,72 +179,67 @@
           <button id="next-question" hidden>次の問題へ →</button>
         </article>
         <div id="acu-tag" hidden><strong></strong><small></small></div>
-        <article id="acu-overview" hidden>
-          <span>漢字名と国際コードを一緒に</span>
-          <div>
-            <button data-acu-popular="LI4">合谷 <b>LI4</b></button
-            ><button data-acu-popular="ST36">足三里 <b>ST36</b></button
-            ><button data-acu-popular="PC6">内関 <b>PC6</b></button>
-          </div>
-          <small>位置は概略 · WHO公式3D座標ではありません</small>
-        </article>
-        <article id="acu-detail" hidden>
-          <div class="acu-detail-top">
-            <span>漢字名 ↔ 国際コード</span
-            ><button id="acu-close-detail" aria-label="経穴の詳細を閉じる">
-              ×
-            </button>
-          </div>
+
+        <article
+          id="acu-detail"
+          class="selection-sheet"
+          hidden
+          aria-label="選択した経穴"
+        >
+          <button
+            id="acu-close-detail"
+            class="sheet-close"
+            aria-label="経穴の詳細を閉じる"
+          >
+            ×
+          </button>
           <div class="acu-name-code">
             <h3 id="acu-point-name"></h3>
             <b id="acu-point-code"></b>
           </div>
-          <p id="acu-point-reading"></p>
-          <p id="acu-point-meridian"></p>
-          <p id="acu-point-aliases"></p>
-          <div id="acu-detail-sides">
-            <button id="acu-detail-left">左</button
-            ><button id="acu-detail-right">右</button>
+          <div class="acu-summary-context">
+            <span id="acu-point-reading"></span
+            ><span id="acu-side-summary"></span
+            ><span class="precision-label">概略位置</span>
           </div>
-          <p id="acu-point-location"></p>
-          <div class="acu-card-actions">
-            <button id="acu-focus">◎ フォーカス</button
-            ><button id="acu-favorite" aria-pressed="false">☆ お気に入り</button
-            ><button id="acu-copy-link">↗ リンクをコピー</button
-            ><button id="acu-detail-source">出典・位置の精度</button>
+          <p id="acu-point-exception" hidden></p>
+          <div class="sheet-primary-actions acu-primary-actions">
+            <button
+              id="acu-expand"
+              aria-expanded="false"
+              aria-controls="acu-details"
+            >
+              詳細</button
+            ><button id="acu-focus">フォーカス</button
+            ><button id="acu-point-prev" aria-label="前の穴" title="前の穴">
+              ‹</button
+            ><button id="acu-point-next" aria-label="次の穴" title="次の穴">
+              ›
+            </button>
           </div>
-          <div class="acu-point-pagination">
-            <button id="acu-point-prev">← 前の穴</button
-            ><button id="acu-point-next">次の穴 →</button>
+          <div id="acu-details" hidden>
+            <p id="acu-point-meridian"></p>
+            <p id="acu-point-aliases"></p>
+            <div id="acu-detail-sides">
+              <button id="acu-detail-left">左</button
+              ><button id="acu-detail-right">右</button>
+            </div>
+            <p id="acu-point-location"></p>
+            <div class="acu-card-actions">
+              <button id="acu-favorite" aria-pressed="false">
+                ☆ お気に入り</button
+              ><button id="acu-copy-link">リンクをコピー</button
+              ><button id="acu-detail-source">出典・位置の精度</button>
+            </div>
           </div>
         </article>
         <div id="acu-mobile-toolbar">
           <label
-            >経脈<select
+            ><select
               id="acu-mobile-meridian"
               aria-label="経穴マップの経脈"
             ></select></label
           ><span>位置は概略</span>
-        </div>
-        <div class="bottom-controls">
-          <div class="view-switch" aria-label="表示方向">
-            <button data-view="front" class="active" aria-pressed="true">
-              正面</button
-            ><button data-view="back" aria-pressed="false">背面</button
-            ><button data-view="side" aria-pressed="false">側面</button>
-          </div>
-          <div class="bottom-divider"></div>
-          <label class="opacity-control"
-            >透過
-            <input
-              id="opacity"
-              type="range"
-              min="15"
-              max="100"
-              value="100"
-              aria-label="モデルの不透明度"
-            /><span id="opacity-value">100%</span></label
-          >
         </div>
         <div class="stage-footer">
           <span id="render-status"><i></i> 準備中</span
@@ -306,6 +247,100 @@
             >ドラッグで回転 <b>·</b> スクロール / ピンチで拡大</span
           ><span>REFERENCE MODEL · MALE</span>
         </div>
+        <section id="view-options" hidden aria-label="表示調整">
+          <div class="view-options-heading">
+            <strong>表示調整</strong
+            ><button id="close-view" aria-label="表示調整を閉じる">×</button>
+          </div>
+          <div class="view-basic">
+            <div class="bottom-controls">
+              <div class="view-switch" aria-label="表示方向">
+                <button data-view="front" class="active" aria-pressed="true">
+                  正面</button
+                ><button data-view="back" aria-pressed="false">背面</button
+                ><button data-view="side" aria-pressed="false">側面</button>
+              </div>
+              <div class="bottom-divider"></div>
+              <label class="opacity-control"
+                >透過
+                <input
+                  id="opacity"
+                  type="range"
+                  min="15"
+                  max="100"
+                  value="100"
+                  aria-label="モデルの不透明度"
+                /><span id="opacity-value">100%</span></label
+              >
+            </div>
+            <div class="canvas-tools">
+              <button id="zoom-in" title="拡大" aria-label="拡大">拡大＋</button
+              ><button id="zoom-out" title="縮小" aria-label="縮小">
+                縮小－</button
+              ><span></span
+              ><button
+                id="auto-rotate"
+                title="自動回転"
+                aria-label="自動回転"
+                aria-pressed="false"
+              >
+                自動回転</button
+              ><button id="fullscreen" title="全画面" aria-label="全画面表示">
+                全画面
+              </button>
+            </div>
+            <button
+              id="tools-toggle"
+              aria-expanded="false"
+              aria-controls="advanced-tools"
+            >
+              断面・画像保存・クイズ
+            </button>
+          </div>
+          <section id="advanced-tools" hidden>
+            <div class="tools-title">
+              学習ツール
+              <button id="close-tools" aria-label="探索ツールを閉じる">
+                戻る
+              </button>
+            </div>
+            <label class="checkbox-label"
+              ><input id="clip-enabled" type="checkbox" /> 断面クリップ</label
+            >
+            <div class="clip-row">
+              <select id="clip-axis" aria-label="断面の方向">
+                <option value="x">矢状面</option>
+                <option value="y">水平面</option>
+                <option value="z">前額面</option></select
+              ><input
+                id="clip-position"
+                type="range"
+                min="-100"
+                max="100"
+                value="0"
+                aria-label="断面の位置"
+              />
+            </div>
+            <p class="tools-hint">
+              表面を切り取り内部を表示します。切断面の組織画像は含みません。
+            </p>
+            <label class="separation-label"
+              >システムの分離
+              <input
+                id="separation"
+                type="range"
+                min="0"
+                max="100"
+                value="0"
+                aria-label="システムの分離度"
+            /></label>
+            <div class="tool-actions">
+              <button id="restore-hidden">↺ 非表示を戻す</button
+              ><button id="snapshot">↓ 画像を保存</button
+              ><button id="start-quiz">✧ 部位クイズ</button>
+            </div>
+          </section>
+        </section>
         <div id="loader">
           <div class="loader-orbit"><span></span></div>
           <strong>人体の構造を読み込み中</strong>

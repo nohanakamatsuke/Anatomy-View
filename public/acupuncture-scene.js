@@ -120,13 +120,6 @@ export class AcupunctureOverlay {
         normal.normalize();
         const distance = pointCameraDistance(point),
           target = this.selected.world.clone();
-        if (this.viewer.host.clientWidth < 600) {
-          const right = new T.Vector3()
-              .crossVectors(new T.Vector3(0, 1, 0), normal)
-              .normalize(),
-            up = new T.Vector3().crossVectors(normal, right).normalize();
-          target.addScaledVector(up, -distance * 0.17);
-        }
         this.viewer.animateCamera(
           target.clone().addScaledVector(normal, distance),
           target,
