@@ -17,3 +17,4 @@ self.onmessage = ({ data }) => {
     })
     .catch(() => {});
 };
+self.postMessage({ type: "ready" });

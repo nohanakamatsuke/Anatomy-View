@@ -14,6 +14,7 @@ const ASSETS = [
   "model-worker.js",
   "model-storage.js",
   "geometry-data.js",
+  "asset-url.js",
   "vendor/three.module.js",
   "vendor/three.core.js",
   "vendor/OrbitControls.js",
@@ -33,7 +34,19 @@ self.addEventListener("install", (event) =>
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll(ASSETS))
+      .then((cache) =>
+        Promise.all(
+          ASSETS.map(async (url) => {
+            const versioned = new URL(url);
+            versioned.searchParams.set("v", "__BUILD__");
+            const response = await fetch(
+              new Request(versioned, { cache: "reload" }),
+            );
+            if (!response.ok) throw Error("App asset unavailable: " + url);
+            await cache.put(url, response);
+          }),
+        ),
+      )
       .then(() => self.skipWaiting()),
   ),
 );
@@ -75,18 +88,45 @@ self.addEventListener("fetch", (event) => {
     return;
   event.respondWith(
     (async () => {
+      const model = isModel(event.request),
+        url = new URL(event.request.url);
       let cache;
       try {
-        cache = await caches.open(isModel(event.request) ? MODEL_CACHE : CACHE);
-        const hit = await cache.match(event.request);
-        if (hit) return hit;
+        cache = await caches.open(model ? MODEL_CACHE : CACHE);
       } catch {}
-      const response = await fetch(event.request);
-      if (response.ok && cache) {
-        const copy = response.clone();
-        event.waitUntil(cache.put(event.request, copy).catch(() => {}));
+      // Navigations revalidate the small HTML document; offline still uses the shell.
+      // A client of another build must not receive this build's cached JS modules.
+      const requested = url.searchParams.get("v"),
+        differentBuild =
+          !model && requested && requested !== CACHE.slice(PREFIX.length);
+      const navigation = event.request.mode === "navigate";
+      if (!navigation && !differentBuild && cache) {
+        const hit = await cache.match(event.request, { ignoreSearch: !model });
+        if (hit) return hit;
       }
-      return response;
+      try {
+        const response = await fetch(
+          navigation || differentBuild
+            ? new Request(event.request, { cache: "no-store" })
+            : event.request,
+        );
+        if (response.ok && cache && !differentBuild) {
+          const copy = response.clone();
+          const key = navigation
+            ? new URL(url.pathname, url.origin).href
+            : event.request;
+          event.waitUntil(cache.put(key, copy).catch(() => {}));
+        }
+        return response;
+      } catch (error) {
+        if (cache && !differentBuild) {
+          const hit = await cache.match(event.request, {
+            ignoreSearch: !model,
+          });
+          if (hit) return hit;
+        }
+        throw error;
+      }
     })(),
   );
 });

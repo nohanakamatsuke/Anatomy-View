@@ -1,3 +1,4 @@
+import { assetURL } from "./asset-url.js";
 import {
   prepareGeometry,
   geometryViews,
@@ -159,7 +160,7 @@ async function restoreLegacy(atlas, layer, onProgress) {
     if (unpacked.byteLength !== layer.bytes) return null;
     const metadata = atlas.parts
       ? atlas
-      : await (await fetch(new URL("models/atlas.json", scope))).json();
+      : await (await fetch(assetURL("models/atlas.json"))).json();
     const started = performance.now(),
       result = prepareGeometry(metadata, layer.id, unpacked);
     if ((await hexDigest(result.buffer)) !== layer.prepared.dataSha256)
@@ -182,7 +183,7 @@ export async function loadGeometryData(
   if (!layer) throw Error("モデルが見つかりません");
   const prepared = layer.prepared;
   if (!prepared && !checksums) {
-    const response = await fetch(new URL("models/checksums.json", scope));
+    const response = await fetch(assetURL("models/checksums.json"));
     if (!response.ok) throw Error("モデルの整合性情報を取得できませんでした");
     checksums = await response.json();
   }

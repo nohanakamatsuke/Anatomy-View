@@ -1,3 +1,4 @@
+import { assetURL } from "./asset-url.js";
 import { AnatomyScene } from "./scene.js";
 import {
   LAYERS,
@@ -370,7 +371,7 @@ $("#install").onclick = async () => {
 };
 (async () => {
   try {
-    const response = await fetch("./models/atlas.json");
+    const response = await fetch(assetURL("models/atlas.json"));
     if (!response.ok) throw Error("部位データを読み込めませんでした");
     atlas = await response.json();
     viewer = new AnatomyScene($("#canvas-host"), atlas, {

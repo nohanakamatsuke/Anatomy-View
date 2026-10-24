@@ -24,5 +24,39 @@ hash.update(await readFile("scripts/prepare-render.mjs"));
 hash.update(await readFile("dist/models/atlas.json"));
 const version = hash.digest("hex").slice(0, 16);
 const sw = await readFile("dist/sw.js", "utf8");
-await writeFile("dist/sw.js", sw.replace("__BUILD__", version));
+await writeFile("dist/sw.js", sw.replaceAll("__BUILD__", version));
+
+// Version each local module dependency as well as the entry point: a fresh shell
+// must never assemble a mixture of old HTTP-cached modules and new modules.
+async function versionShell(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== "models") await versionShell(file);
+      continue;
+    }
+    if (entry.name === "sw.js") continue;
+    if (entry.name.endsWith(".js")) {
+      let text = await readFile(file, "utf8");
+      text = text
+        .replace(
+          /(\b(?:from|import)\s*["'])(\.\.?\/[^"'?#]+\.js)(["'])/g,
+          (_, a, p, b) => a + p + "?v=" + version + b,
+        )
+        .replace(
+          /(new URL\(\s*["'])(\.\.?\/[^"'?#]+\.js)(["'])/g,
+          (_, a, p, b) => a + p + "?v=" + version + b,
+        );
+      await writeFile(file, text);
+    } else if (entry.name === "index.html") {
+      let text = await readFile(file, "utf8");
+      text = text.replace(
+        /(["'])(\.\/[^"'?#]+\.(?:js|css|webmanifest|png|svg))(["'])/g,
+        (_, a, p, b) => a + p + "?v=" + version + b,
+      );
+      await writeFile(file, text);
+    }
+  }
+}
+await versionShell("dist");
 console.log("Built anatomy PWA in dist/, version " + version);

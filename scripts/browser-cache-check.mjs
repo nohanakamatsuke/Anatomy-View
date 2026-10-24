@@ -10,6 +10,9 @@ const { chromium } = await import(
 );
 const root = path.resolve(fileURLToPath(new URL("../dist/", import.meta.url)));
 let revision = 0;
+const buildVersion = (await readFile(root + "/sw.js", "utf8")).match(
+  /CACHE = PREFIX \+ "([a-f0-9]+)"/,
+)[1];
 const types = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -27,6 +30,8 @@ const server = http.createServer(async (req, res) => {
     res.end(bytes);
     return;
   }
+  if (url.pathname.endsWith("sw.js"))
+    console.log("SW REQUEST", revision, url.search);
   if (url.pathname === "/__update" && req.method === "POST") {
     revision++;
     res.end(String(revision));
@@ -46,19 +51,18 @@ const server = http.createServer(async (req, res) => {
   }
   try {
     let bytes = await readFile(file);
-    if (relative === "sw.js")
+    if ([".js", ".html", ".css"].includes(path.extname(file)))
       bytes = Buffer.from(
-        bytes
-          .toString()
-          .replace(
-            /CACHE = PREFIX \+ "[a-f0-9]+"/,
-            'CACHE = PREFIX + "test-app-' + revision + '"',
-          ),
+        bytes.toString().replaceAll(buildVersion, "test-app-" + revision),
+      );
+    if (relative === "app.js")
+      bytes = Buffer.from(
+        bytes.toString() + "\nglobalThis.testShellRevision=" + revision + ";\n",
       );
     res.writeHead(200, {
       "Content-Type": types[path.extname(file)] || "application/octet-stream",
       "Content-Length": bytes.length,
-      "Cache-Control": "no-store",
+      "Cache-Control": relative === "sw.js" ? "no-store" : "max-age=600",
     });
     res.end(bytes);
   } catch {
@@ -86,6 +90,14 @@ try {
   page.setDefaultTimeout(90000);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  const navigations = [];
+  page.on("response", (r) => {
+    if (r.request().isNavigationRequest())
+      navigations.push({
+        url: r.url(),
+        fromServiceWorker: r.fromServiceWorker(),
+      });
+  });
   let modelRequests = 0;
   context.on("request", (request) => {
     if (request.url().includes("/models/render-")) modelRequests++;
@@ -124,7 +136,7 @@ try {
       (version) =>
         new Promise((resolve) => {
           const controller = navigator.serviceWorker.controller;
-          if (!controller) {
+          if (!controller || controller.state !== "activated") {
             resolve(false);
             return;
           }
@@ -204,10 +216,57 @@ try {
   await ready();
   assert.equal((await metric()).source, "ready-cache");
   assert.equal(modelRequests, 0);
+  if ((await page.evaluate(() => globalThis.testShellRevision)) !== 1)
+    console.log(
+      "NAV DIAGNOSIS",
+      navigations,
+      await page.evaluate(async () => ({
+        state: navigator.serviceWorker.controller?.state,
+        active: (await navigator.serviceWorker.getRegistration()).active?.state,
+        url: location.href,
+      })),
+    );
+  if ((await page.evaluate(() => globalThis.testShellRevision)) !== 1)
+    console.log(
+      "SHELL DIAGNOSIS",
+      await page.evaluate(async () => {
+        const keys = await caches.keys(),
+          entries = [];
+        for (const key of keys.filter((k) =>
+          k.includes("human-anatomy-app:"),
+        )) {
+          const cache = await caches.open(key);
+          const requests = await cache.keys();
+          for (const request of requests.filter(
+            (r) =>
+              r.url.includes("app.js") || new URL(r.url).pathname.endsWith("/"),
+          )) {
+            const text = await (await cache.match(request)).text();
+            entries.push({
+              cache: key,
+              url: request.url,
+              tail: text.slice(-100),
+              scripts: text.match(/app\.js[^"']*/g),
+            });
+          }
+        }
+        return { script: [...document.scripts].map((s) => s.src), entries };
+      }),
+    );
+  assert.equal(
+    await page.evaluate(() => globalThis.testShellRevision),
+    1,
+    "new app shell must bypass stale HTTP cache",
+  );
   await context.setOffline(true);
   await page.reload();
   await ready();
   assert.equal((await metric()).source, "ready-cache");
+  assert.equal(
+    await page.evaluate(() => globalThis.testShellRevision),
+    1,
+    "offline must retain the latest app shell",
+  );
   await context.setOffline(false);
   // Existing installs can upgrade their old compressed model without downloading the new format.
   await page.evaluate(async () => {
@@ -331,6 +390,27 @@ try {
   assert.equal(fm.source, "network");
   console.log("PASS display without Worker, IndexedDB or CacheStorage.");
   await fallback.close();
+  const stalled = await browser.newContext({ serviceWorkers: "block" });
+  await stalled.addInitScript(() => {
+    window.Worker = class {
+      postMessage() {}
+      terminate() {}
+    };
+  });
+  const sp = await stalled.newPage();
+  await sp.goto(app);
+  await sp.waitForFunction(
+    () =>
+      document.querySelector("#loader").hidden ||
+      !document.querySelector("#error-panel").hidden,
+    {},
+    { timeout: 15000 },
+  );
+  assert.equal(await sp.locator("#error-panel").isVisible(), false);
+  console.log(
+    "PASS a worker that never starts falls back without hanging at 0%.",
+  );
+  await stalled.close();
   const corrupt = await browser.newContext({ serviceWorkers: "block" });
   const cp = await corrupt.newPage();
   await cp.goto(app);
