@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#101a20" />
+    <meta
+      name="description"
+      content="人体の、その奥へ。骨格・筋肉・臓器を探索するインタラクティブ3Dアトラス。"
+    />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <title>ANATOMIA — 人体の、その奥へ。</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      { "imports": { "three": "./vendor/three.module.js" } }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="./"
+        ><span class="brand-mark">A<span>・</span></span>
+        <div>ANATOMIA<small>THE HUMAN ATLAS</small></div></a
+      >
+      <div class="header-center">
+        <span class="online-dot"></span> INTERACTIVE ANATOMY
+        <span class="edition"> / 01</span>
+      </div>
+      <div class="header-actions">
+        <button id="help" aria-label="操作方法">?</button
+        ><button id="install" hidden>↓ インストール</button
+        ><button id="menu" aria-expanded="false" aria-controls="sidebar">
+          ☰ <span>探索</span>
+        </button>
+      </div>
+    </header>
+    <div class="app">
+      <aside id="sidebar">
+        <div class="sidebar-heading">
+          <span class="section-kicker">EXPLORE THE BODY</span>
+          <h1>人体を探索する<span>。</span></h1>
+          <p>見る。触れる。理解する。</p>
+        </div>
+        <div class="search-box">
+          <span>⌕</span
+          ><input
+            id="search"
+            placeholder="部位を検索…"
+            aria-label="部位を検索"
+          /><kbd>⌘ K</kbd>
+        </div>
+        <div class="section-title">
+          表示するシステム <span>03 SYSTEMS</span>
+        </div>
+        <div class="systems">
+          <button
+            class="system active"
+            data-layer="skeletal"
+            aria-pressed="true"
+          >
+            <span class="system-icon bone">♧</span
+            ><span class="system-copy"
+              ><strong>骨格系</strong><small>SKELETAL SYSTEM</small></span
+            ><span class="system-toggle"></span></button
+          ><button class="system" data-layer="muscular" aria-pressed="false">
+            <span class="system-icon muscle">≋</span
+            ><span class="system-copy"
+              ><strong>筋肉系</strong><small>MUSCULAR SYSTEM</small></span
+            ><span class="system-toggle"></span></button
+          ><button class="system" data-layer="organs" aria-pressed="false">
+            <span class="system-icon organ">♡</span
+            ><span class="system-copy"
+              ><strong>臓器</strong><small>INTERNAL ORGANS</small></span
+            ><span class="system-toggle"></span>
+          </button>
+        </div>
+        <details class="more-systems">
+          <summary>血管・神経など <span>＋ 7 SYSTEMS</span></summary>
+          <div id="advanced-systems" class="systems"></div>
+          <button id="all-systems">⊕ 全2,234構造を重ねて表示</button>
+        </details>
+        <div class="sidebar-separator"></div>
+        <div class="section-title">
+          クイックアクセス
+          <button id="clear-selection" title="選択を解除">リセット ↺</button>
+        </div>
+        <div id="quick-list"></div>
+        <div id="search-results" hidden></div>
+        <details class="favorites">
+          <summary>☆ お気に入り <span id="favorite-count">0</span></summary>
+          <div id="favorites-list"></div>
+        </details>
+        <div class="sidebar-foot">
+          <span class="anatomy-icon">✧</span
+          ><strong>知るほどに、見えてくる。</strong>
+          <p>ひとつのからだに、<br />無数のつながり。</p>
+          <button id="credits">モデルの出典・利用条件 ↗</button>
+        </div>
+      </aside>
+      <main id="stage">
+        <div
+          id="canvas-host"
+          role="img"
+          aria-label="人体の3Dモデル。ドラッグで回転、ピンチで拡大できます。"
+        ></div>
+        <div class="stage-head">
+          <div class="stage-breadcrumb">
+            ATLAS <span>/</span> <b id="current-system">骨格系</b>
+          </div>
+          <div class="model-badge">
+            <span></span> BODY PARTS 3D <span class="badge-version">4.0</span>
+          </div>
+        </div>
+        <div class="hero">
+          <div class="eyebrow">A NEW PERSPECTIVE ON YOU</div>
+          <h2>人体の、<br />その奥へ<span>。</span></h2>
+          <p>ひとつずつ、立体でひもとく。</p>
+        </div>
+        <div class="axis-label left">R</div>
+        <div class="axis-label right">L</div>
+        <button
+          id="tools-toggle"
+          aria-expanded="false"
+          aria-controls="advanced-tools"
+        >
+          ⚙ 探索ツール
+        </button>
+        <section id="advanced-tools" hidden>
+          <div class="tools-title">
+            EXPLORATION TOOLS
+            <button id="close-tools" aria-label="探索ツールを閉じる">×</button>
+          </div>
+          <label class="checkbox-label"
+            ><input id="clip-enabled" type="checkbox" /> 断面クリップ</label
+          >
+          <div class="clip-row">
+            <select id="clip-axis" aria-label="断面の方向">
+              <option value="x">矢状面</option>
+              <option value="y">水平面</option>
+              <option value="z">前額面</option></select
+            ><input
+              id="clip-position"
+              type="range"
+              min="-100"
+              max="100"
+              value="0"
+              aria-label="断面の位置"
+            />
+          </div>
+          <p class="tools-hint">
+            表面を切り取り内部を表示します。切断面の組織画像は含みません。
+          </p>
+          <label class="separation-label"
+            >システムの分離
+            <input
+              id="separation"
+              type="range"
+              min="0"
+              max="100"
+              value="0"
+              aria-label="システムの分離度"
+          /></label>
+          <div class="tool-actions">
+            <button id="restore-hidden">↺ 非表示を戻す</button
+            ><button id="snapshot">↓ 画像を保存</button
+            ><button id="start-quiz">✧ 部位クイズ</button>
+          </div>
+        </section>
+        <div class="canvas-tools">
+          <button id="zoom-in" title="拡大" aria-label="拡大">＋</button
+          ><button id="zoom-out" title="縮小" aria-label="縮小">−</button
+          ><span></span
+          ><button id="reset-camera" title="全身を表示" aria-label="全身を表示">
+            ⛶</button
+          ><button
+            id="auto-rotate"
+            title="自動回転"
+            aria-label="自動回転"
+            aria-pressed="false"
+          >
+            ↻</button
+          ><button id="fullscreen" title="全画面" aria-label="全画面表示">
+            ⤢
+          </button>
+        </div>
+        <div id="selection-label" hidden>
+          <span></span><strong></strong><small></small>
+        </div>
+        <article id="inspector">
+          <div class="inspector-top">
+            <span class="section-kicker" id="detail-kicker"
+              >DISCOVER YOUR ANATOMY</span
+            ><button id="close-detail" aria-label="詳細を閉じる" hidden>
+              ×
+            </button>
+          </div>
+          <div id="inspector-empty">
+            <div class="inspector-symbol">⌁</div>
+            <h3>触れて、発見する。</h3>
+            <p>モデルの部位をタップすると、<br />名前と構造を確認できます。</p>
+            <div class="tap-hint"><span>◎</span> 気になる部位を選択</div>
+          </div>
+          <div id="inspector-detail" hidden>
+            <h3 id="part-title"></h3>
+            <p id="part-english"></p>
+            <div id="part-tags"></div>
+            <p id="part-description"></p>
+            <div class="detail-actions">
+              <button id="focus-part">◎ フォーカス</button
+              ><button id="isolate" aria-pressed="false">◇ 単独表示</button>
+            </div>
+            <div class="detail-actions secondary-actions">
+              <button id="favorite" aria-pressed="false">☆ お気に入り</button
+              ><button id="hide-part">◌ 非表示にする</button>
+            </div>
+            <small id="part-source"></small>
+          </div>
+        </article>
+        <article id="quiz-card" hidden>
+          <div class="tools-title">
+            ANATOMY QUIZ
+            <button id="end-quiz" aria-label="クイズを終了">×</button>
+          </div>
+          <span id="quiz-score">0 / 0 正解</span>
+          <h3>強調された部位の名前は？</h3>
+          <div id="quiz-choices"></div>
+          <p id="quiz-feedback" role="status"></p>
+          <button id="next-question" hidden>次の問題へ →</button>
+        </article>
+        <div class="bottom-controls">
+          <div class="view-switch" aria-label="表示方向">
+            <button data-view="front" class="active" aria-pressed="true">
+              正面</button
+            ><button data-view="back" aria-pressed="false">背面</button
+            ><button data-view="side" aria-pressed="false">側面</button>
+          </div>
+          <div class="bottom-divider"></div>
+          <label class="opacity-control"
+            >透過
+            <input
+              id="opacity"
+              type="range"
+              min="15"
+              max="100"
+              value="100"
+              aria-label="モデルの不透明度"
+            /><span id="opacity-value">100%</span></label
+          >
+        </div>
+        <div class="stage-footer">
+          <span id="render-status"><i></i> 準備中</span
+          ><span class="gesture-hint"
+            >ドラッグで回転 <b>·</b> スクロール / ピンチで拡大</span
+          ><span>REFERENCE MODEL · MALE</span>
+        </div>
+        <div id="loader">
+          <div class="loader-orbit"><span></span></div>
+          <strong>人体の構造を読み込み中</strong>
+          <p id="loading-text">3Dシーンを準備しています</p>
+          <div class="progress-track"><div id="progress"></div></div>
+        </div>
+        <div id="error-panel" hidden>
+          <strong>3D表示を開始できませんでした</strong>
+          <p id="error-text"></p>
+          <button id="retry">再読み込み</button>
+        </div>
+        <div id="mobile-layers">
+          <button data-preset="skeletal" class="active">
+            ♧ <span>骨格</span></button
+          ><button data-preset="muscular">≋ <span>筋肉</span></button
+          ><button data-preset="organs">♡ <span>臓器</span></button
+          ><button data-preset="all">⊕ <span>重ねる</span></button>
+        </div>
+      </main>
+    </div>
+    <dialog id="info-dialog">
+      <button id="close-info" aria-label="閉じる">×</button>
+      <div id="info-content"></div>
+    </dialog>
+    <div id="toast" role="status"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

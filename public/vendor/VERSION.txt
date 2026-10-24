@@ -1,0 +1,3 @@
+Three.js 0.186.1, MIT license.
+Vendored from the three@0.186.1 npm package.
+Included: three.module.js, three.core.js, OrbitControls.js, BufferGeometryUtils.js.
